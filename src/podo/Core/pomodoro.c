@@ -94,14 +94,14 @@ void pomodoro_pause(void)
 void pomodoro_resume(void) {
     if (current_state == POMODORO_PAUSED_WORK) {
         change_state(POMODORO_WORK, remaining_ms / 1000);
-        timer_resume();
+        timer_start(remaining_ms, on_timer_tick, on_timer_finished);
     } else if (current_state == POMODORO_PAUSED_BREAK) {
         if (cycle_count % max_cycles == 0) {
             change_state(POMODORO_LONG_BREAK, remaining_ms / 1000);
         } else {
             change_state(POMODORO_SHORT_BREAK, remaining_ms / 1000);
         }
-        timer_resume();
+        timer_start(remaining_ms, on_timer_tick, on_timer_finished);
     }
 }
 
@@ -118,7 +118,7 @@ PomodoroState_e pomodoro_get_state(void) {
 
 uint32_t pomodoro_get_remaining_sec(void) 
 {
-    return remaining_ms / 1000;  // Convert to seconds for API
+    return timer_get_remaining() / 1000;  // Get actual remaining time from timer and convert to seconds
 }
 
 void pomodoro_set_state_callback(pomodoro_state_cb_t cb) {
