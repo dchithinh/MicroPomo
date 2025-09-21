@@ -32,13 +32,13 @@ add_compile_definitions($<$<BOOL:${LV_USE_FFMPEG}>:LV_USE_FFMPEG=1>)
 # Add LVGL subdirectory
 add_subdirectory(lvgl)
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS})
-# Add podo subdirectory
-# Add podo subdirectory with correct path
-# set(PODO_ROOT_DIR "${PROJECT_SOURCE_DIR}/src" CACHE PATH "Root directory for podo library")
-add_subdirectory(src/podo)
+# Add pomodoro subdirectory
+# Add pomodoro subdirectory with correct path
+# set(POMODORO_ROOT_DIR "${PROJECT_SOURCE_DIR}/src" CACHE PATH "Root directory for pomodoro library")
+add_subdirectory(src/pomodoro)
 
 set(MAIN_SOURCES src/mouse_cursor_icon.c src/hal/hal.c)
-set(MAIN_LIBS lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES} podo_app)
+set(MAIN_LIBS lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES} pomodoro_app)
 
 list(APPEND MAIN_SOURCES src/main.c)
 
@@ -48,7 +48,7 @@ if(NOT MSVC)
 endif()
 
 # Custom target to run the executable
-add_custom_target(run COMMAND ${EXECUTABLE_OUTPUT_PATH}/main DEPENDS main)
+add_custom_target(run COMMAND ${EXECUTABLE_OUTPUT_PATH}/main DEPENDS MicroPomo)
 
 # Conditionally include and link SDL2_image if LV_USE_DRAW_SDL is enabled
 if(LV_USE_DRAW_SDL)

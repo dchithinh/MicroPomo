@@ -53,6 +53,8 @@
 #define LCD_WIDTH  480
 #define LCD_HEIGHT 480
 
+void static demo_load_gif(lv_obj_t * parent);
+
 int main(int argc, char **argv)
 {
   (void)argc; /*Unused*/
@@ -64,7 +66,6 @@ int main(int argc, char **argv)
   /*Initialize the HAL (display, input devices, tick) for LVGL*/
   sdl_hal_init(LCD_WIDTH, LCD_HEIGHT);
 
-  // lv_demo_widgets();
   ui_main_screen(lv_screen_active());
 
   while(1) {
@@ -88,4 +89,9 @@ int main(int argc, char **argv)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-
+void static demo_load_gif(lv_obj_t * parent)
+{
+  lv_obj_t * gif = lv_gif_create(parent);
+  lv_gif_set_src(gif, "S:/run_target.gif");
+  lv_obj_align(gif , LV_ALIGN_CENTER, 0, 0);
+}

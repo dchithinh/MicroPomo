@@ -53,6 +53,9 @@ void timer_start(uint32_t ms,
     tmr.on_finished = on_finished;
     tmr.running = true;
     tmr.paused = false;
+
+    tmr.current_remaining = ms; // Initialize current remaining time
+    tmr.pause_duration = 0;
 }
 
 void timer_stop(void) {

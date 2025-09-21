@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "lvgl.h"
 #include "pomodoro.h"
 #include "timer.h"
 
@@ -40,6 +41,7 @@ static void on_timer_tick(uint32_t remaining_ms)
 
 // Timer finished callback
 static void on_timer_finished(void) {
+    LV_LOG_USER("[Pomodoro] Timer finished in state %d\n", current_state);
     if (current_state == POMODORO_WORK) {
         cycle_count++;
         if (cycle_count % max_cycles == 0) {
