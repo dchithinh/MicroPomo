@@ -31,7 +31,9 @@ static void reset_event_cb(lv_event_t *e);
 static void pomodoro_state_changed(PomodoroState_e state);
 static void timer_tick_cb(lv_timer_t * timer);
 static void ui_tick_cb(uint32_t remaining);
-static void ui_update_by_state(PomodoroState_e state);
+static void ui_update_ctrl_button(PomodoroState_e state);
+static void ui_update_state_text(PomodoroState_e state);
+static void ui_update_cycle_counter(void);
 
 /* --- UI Functions --- */
 
@@ -231,13 +233,14 @@ static void update_timer_label(uint32_t remaining_ms)
     lv_arc_set_value(progress, total_seconds);
 }
 
-static void ui_update_by_state(PomodoroState_e state)
+static void ui_update_ctrl_button(PomodoroState_e state)
 {
     if(state == POMODORO_IDLE) {
         lv_obj_add_flag(btn_reset, LV_OBJ_FLAG_HIDDEN); // Hide Reset
         lv_obj_set_align(btn_start, LV_ALIGN_CENTER);   // Center Start button
     }
-    else if (state == POMODORO_PAUSED_WORK || state == POMODORO_PAUSED_BREAK) {
+    else if (state == POMODORO_PAUSED_WORK ||
+            state == POMODORO_PAUSED_BREAK) {
         lv_obj_clear_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Show "Paused" label
     }
     else {
@@ -248,14 +251,13 @@ static void ui_update_by_state(PomodoroState_e state)
     }
 }
 
-static void pomodoro_state_changed(PomodoroState_e state)
+static void ui_update_state_text(PomodoroState_e state)
 {
-    ui_update_by_state(state);
-    // Update mode label based on state
-    switch (state) {
+   switch (state) {
         case POMODORO_IDLE:
             lv_label_set_text(label_mode, "Ready");
             lv_label_set_text(lv_obj_get_child(btn_start, 0), "Start");
+            lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
             break;
             
         case POMODORO_WORK:
@@ -285,17 +287,36 @@ static void pomodoro_state_changed(PomodoroState_e state)
             update_timer_label(timer_get_remaining());
             break;
     }
+}
 
-    // Update remaining time and progress bar
-    remaining_sec = pomodoro_get_remaining_sec();
-    update_timer_label(remaining_sec); 
-
-    // Update cycle counter
+static void ui_update_cycle_counter(void)
+{
     char buf[32];
     snprintf(buf, sizeof(buf), "Cycle: %d / %d", 
              pomodoro_get_current_cycle(),
              POMODORO_DEF_CYCLES_BEFORE_LONG);
     lv_label_set_text(label_cycle, buf);
+}
+
+static void update_timer_and_progress(PomodoroState_e state)
+{
+    remaining_sec = pomodoro_get_remaining_sec();
+    // Only update the arc range for new session states, NOT for resume transitions
+    if (!pomodoro_is_resume_transition() && !pomodoro_is_pause_transition()) {
+        lv_arc_set_range(progress, 0, remaining_sec / 1000);
+    }
+
+    // Update remaining time and progress bar
+    update_timer_label(remaining_sec);
+}
+
+static void pomodoro_state_changed(PomodoroState_e state)
+{
+    ui_update_ctrl_button(state);
+    ui_update_state_text(state);
+
+    update_timer_and_progress(state);
+    ui_update_cycle_counter();
 }
 
 static void start_event_cb(lv_event_t *e)

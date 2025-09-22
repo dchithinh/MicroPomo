@@ -5,6 +5,7 @@
 
 // ====================== Internal State ======================
 static PomodoroState_e current_state = POMODORO_IDLE;
+static PomodoroState_e previous_state = POMODORO_IDLE;
 static uint32_t remaining_ms = POMODORO_DEF_WORK_MIN * 60 * 1000;  /**< Remaining milliseconds in current session */
 static uint8_t cycle_count = 0;  /**< Work sessions completed */
 
@@ -24,6 +25,7 @@ static pomodoro_tick_cb_t tick_cb = NULL;
  * @param duration_sec Duration for the new state
  */
 static void change_state(PomodoroState_e new_state, uint32_t duration_sec) {
+    previous_state = current_state;
     current_state = new_state;
     remaining_ms = duration_sec * 1000;
 
@@ -123,15 +125,34 @@ uint32_t pomodoro_get_remaining_sec(void)
     return remaining_ms / 1000;  // Convert to seconds for API
 }
 
-void pomodoro_set_state_callback(pomodoro_state_cb_t cb) {
+void pomodoro_set_state_callback(pomodoro_state_cb_t cb)
+{
     state_cb = cb;
 }
 
-void pomodoro_set_tick_callback(pomodoro_tick_cb_t cb) {
+void pomodoro_set_tick_callback(pomodoro_tick_cb_t cb)
+{
     tick_cb = cb;
 }
 
-uint8_t pomodoro_get_current_cycle(void) {
+uint8_t pomodoro_get_current_cycle(void)
+{
     return cycle_count;
 }
 
+bool pomodoro_is_resume_transition(void)
+{
+    // True if previous_state was PAUSED_WORK and current_state is WORK,
+    // or previous_state was PAUSED_BREAK and current_state is SHORT_BREAK or LONG_BREAK
+    return ((previous_state == POMODORO_PAUSED_WORK && current_state == POMODORO_WORK) ||
+            (previous_state == POMODORO_PAUSED_BREAK && 
+               (current_state == POMODORO_SHORT_BREAK || current_state == POMODORO_LONG_BREAK)));
+}
+
+bool pomodoro_is_pause_transition(void)
+{
+    return (
+        (current_state == POMODORO_PAUSED_WORK ||
+         current_state == POMODORO_PAUSED_BREAK)
+    );
+}

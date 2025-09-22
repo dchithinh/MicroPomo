@@ -2,6 +2,7 @@
 #define __H_POMODORO_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,6 +108,18 @@ void pomodoro_set_tick_callback(pomodoro_tick_cb_t cb);
  *        Normally this will be called from a timer interrupt or periodic task
  */
 void pomodoro_tick(void);
+
+/** 
+ * @brief Check if the last state transition was a resume transition
+ * @return true if the last transition was a resume, false otherwise
+ */
+bool pomodoro_is_resume_transition(void);
+
+/** 
+ * @brief Check if the current state is a paused state
+ * @return true if the current state is PAUSED_WORK or PAUSED_BREAK, false otherwise
+ */
+bool pomodoro_is_pause_transition(void);
 
 #ifdef __cplusplus
 }
