@@ -4,8 +4,11 @@
 #include "event.h"
 #include "timer.h"
 #include "pomodoro.h"
+#include "settings_screen.h"
 #include "main_screen.h"
+#include "full_screen.h"
 
+static lv_obj_t *main_cont;
 
 static lv_obj_t *label_mode;
 static lv_obj_t *label_timer;
@@ -23,8 +26,12 @@ static lv_style_t font_style;
 
 static bool timer_running = false;
 static int remaining_sec = POMODORO_DEF_WORK_MIN * 60;
+static int work_state_elapsed_sec = 0;
+static bool fullscreen_timer_active = false;
 
 /* Forward declarations */
+static void ui_main_screen_set_bg_by_theme(lv_obj_t *parent);
+static void ui_main_screen_init_style_by_theme(void);
 static void update_timer_label(uint32_t remaining_ms);
 static void start_event_cb(lv_event_t *e);
 static void reset_event_cb(lv_event_t *e);
@@ -37,13 +44,27 @@ static void ui_update_cycle_counter(void);
 
 /* --- UI Functions --- */
 
+static void ui_main_screen_set_bg_by_theme(lv_obj_t *parent)
+{
+    if (ui_get_theme() == POMO_DARK_THEME) {
+        lv_obj_remove_style_all(parent);
+        lv_obj_set_size(parent, LV_PCT(100), LV_PCT(100));
+        // Set background color for the parent/screen
+        lv_obj_set_style_bg_color(parent, lv_color_hex(0x343247), 0);
+        lv_obj_set_style_bg_opa(parent, LV_OPA_COVER, 0);
+        lv_obj_set_style_pad_all(parent, 0, 0);
+        lv_obj_set_style_margin_all(parent, 0, 0);
+        lv_obj_set_style_border_width(parent, 0, 0);
 
-static pomodoro_theme_e ui_get_theme(void) {
-    //Only support Dark theme for now
-    return POMO_DARK_THEME;
+        // Remove scrollbars from parent
+        lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
+    }
+    else {
+        lv_obj_set_style_bg_color(parent, lv_color_hex(0xffffff), 0);
+    }
 }
 
-static void ui_theme_init(void) {
+static void ui_main_screen_init_style_by_theme(void) {
 
     lv_style_init(&progress_main_style);
     lv_style_init(&progress_indic_style);
@@ -74,8 +95,8 @@ void ui_main_screen(lv_obj_t *parent)
     // Initialize systems
     event_init();
     timer_init();
-    ui_theme_init();
-    
+    ui_main_screen_init_style_by_theme();
+
     // Register callbacks
     pomodoro_set_state_callback(pomodoro_state_changed);
     pomodoro_set_tick_callback(ui_tick_cb);
@@ -94,42 +115,19 @@ void ui_main_screen(lv_obj_t *parent)
         LV_GRID_TEMPLATE_LAST
     };
 
-    // Remove all default styles from parent
-    lv_obj_remove_style_all(parent);
-    
-    // Set background color for the parent/screen
-    lv_obj_set_style_bg_color(parent, lv_color_hex(0x343247), 0);
-    lv_obj_set_style_bg_opa(parent, LV_OPA_COVER, 0);
-    lv_obj_set_style_pad_all(parent, 0, 0);
-    lv_obj_set_style_margin_all(parent, 0, 0);
-    lv_obj_set_style_border_width(parent, 0, 0);
-    
-    // Remove scrollbars from parent
-    lv_obj_clear_flag(parent, LV_OBJ_FLAG_SCROLLABLE);
+    main_cont = lv_obj_create(parent);
+    ui_main_screen_set_bg_by_theme(main_cont);
 
-    lv_obj_t *cont = lv_obj_create(parent);
-    
-    // Remove all default styles from container
-    lv_obj_remove_style_all(cont);
-    
-    // Set container properties
-    lv_obj_set_size(cont, LV_PCT(100), LV_PCT(100));
-    lv_obj_set_style_bg_color(cont, lv_color_hex(0x343247), 0);
-    lv_obj_set_style_bg_opa(cont, LV_OPA_COVER, 0);
-    lv_obj_set_style_margin_all(cont, 0, 0);
-    lv_obj_set_style_pad_all(cont, 0, 0);
-    lv_obj_set_style_border_width(cont, 0, 0);
-
-    lv_obj_set_grid_dsc_array(cont, col_dsc, row_dsc);
-    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_grid_dsc_array(main_cont, col_dsc, row_dsc);
+    lv_obj_clear_flag(main_cont, LV_OBJ_FLAG_SCROLLABLE);
 
     /* Add some margin top/bottom */
-    lv_obj_set_style_pad_top(cont, 12, 0);
-    lv_obj_set_style_pad_bottom(cont, 12, 0);
-    lv_obj_set_style_pad_row(cont, 8, 0);   // spacing between rows
+    lv_obj_set_style_pad_top(main_cont, 12, 0);
+    lv_obj_set_style_pad_bottom(main_cont, 12, 0);
+    lv_obj_set_style_pad_row(main_cont, 8, 0);   // spacing between rows
 
     /* Mode */
-    label_mode = lv_label_create(cont);
+    label_mode = lv_label_create(main_cont);
     lv_label_set_text(label_mode, "Focus");
     lv_obj_set_grid_cell(label_mode,
                          LV_GRID_ALIGN_CENTER, 0, 1,
@@ -138,7 +136,7 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_style_text_font(label_mode, &lv_font_montserrat_48, 0);
 
     /* Timer row */
-    lv_obj_t *timer_cont = lv_obj_create(cont);
+    lv_obj_t *timer_cont = lv_obj_create(main_cont);
     lv_obj_remove_style_all(timer_cont);
     lv_obj_clear_flag(timer_cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_grid_cell(timer_cont, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
@@ -177,7 +175,7 @@ void ui_main_screen(lv_obj_t *parent)
     
 
     /* Buttons */
-    lv_obj_t *btn_row = lv_obj_create(cont);
+    lv_obj_t *btn_row = lv_obj_create(main_cont);
     lv_obj_remove_style_all(btn_row);
     lv_obj_clear_flag(btn_row, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_flex_flow(btn_row, LV_FLEX_FLOW_ROW);
@@ -204,7 +202,7 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_center(label_reset);
 
     /* Cycle status */
-    label_cycle = lv_label_create(cont);
+    label_cycle = lv_label_create(main_cont);
     lv_label_set_text(label_cycle, "Cycle: 0 / 4");
     lv_obj_set_grid_cell(label_cycle,
                          LV_GRID_ALIGN_CENTER, 0, 1,
@@ -354,6 +352,26 @@ static void reset_event_cb(lv_event_t *e)
 static void ui_tick_cb(uint32_t remaining) {
     LV_LOG_USER("[UI] Remaining: %02lu:%02lu\n", remaining / 60, remaining % 60);
     update_timer_label(remaining);
+
+    PomodoroState_e state = pomodoro_get_state();
+    if (state == POMODORO_WORK) {
+        work_state_elapsed_sec++;
+        if (!fullscreen_timer_active && work_state_elapsed_sec >= 3) {
+            // Show fullscreen overlay after 10 seconds
+            show_fullscreen_timer(main_cont);
+            fullscreen_timer_active = true;
+        }
+        if (fullscreen_timer_active) {
+            update_fullscreen_timer(remaining);
+        }
+    } else {
+        // Not in WORK state: reset elapsed time and hide overlay if shown
+        work_state_elapsed_sec = 0;
+        if (fullscreen_timer_active) {
+            hide_fullscreen_timer();
+            fullscreen_timer_active = false;
+        }
+    }
 }
 
 static void timer_tick_cb(lv_timer_t * timer) {
