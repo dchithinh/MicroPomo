@@ -7,7 +7,7 @@ static lv_obj_t *fullscreen_timer_label = NULL;
 
 static void ui_full_screen_set_bg_by_theme(lv_obj_t *parent);
 static void ui_full_screen_fade_in_obj(lv_obj_t *obj, uint32_t duration_ms);
-
+static void ui_full_screen_fade_out_obj(lv_obj_t *obj, uint32_t duration_ms);
 
 void show_fullscreen_timer(lv_obj_t *parent)
 {
@@ -15,6 +15,7 @@ void show_fullscreen_timer(lv_obj_t *parent)
 
     fullscreen_timer_cont = lv_obj_create(parent);
     ui_full_screen_set_bg_by_theme(fullscreen_timer_cont);
+    ui_full_screen_fade_in_obj(fullscreen_timer_cont, 2000); // Fade in over 2 seconds
 
     fullscreen_timer_label = lv_label_create(fullscreen_timer_cont);
     lv_obj_center(fullscreen_timer_label);
@@ -62,6 +63,11 @@ static void ui_full_screen_set_bg_by_theme(lv_obj_t *parent)
     }
 }
 
+static void anim_set_opa_cb(void *var, int32_t value)
+{
+    lv_obj_set_style_opa((lv_obj_t *)var, value, LV_PART_MAIN);
+}
+
 static void ui_full_screen_fade_in_obj(lv_obj_t *obj, uint32_t duration_ms)
 {
     lv_obj_set_style_opa(obj, LV_OPA_TRANSP, 0);
@@ -69,7 +75,19 @@ static void ui_full_screen_fade_in_obj(lv_obj_t *obj, uint32_t duration_ms)
     lv_anim_init(&a);
     lv_anim_set_var(&a, obj);
     lv_anim_set_values(&a, LV_OPA_TRANSP, LV_OPA_COVER);
-    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_style_opa);
+    lv_anim_set_exec_cb(&a, anim_set_opa_cb);
+    lv_anim_set_time(&a, duration_ms);
+    lv_anim_start(&a);
+}
+
+static void ui_full_screen_fade_out_obj(lv_obj_t *obj, uint32_t duration_ms)
+{
+    lv_obj_set_style_opa(obj, LV_OPA_COVER, 0);
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, obj);
+    lv_anim_set_values(&a, LV_OPA_COVER, LV_OPA_TRANSP);
+    lv_anim_set_exec_cb(&a, anim_set_opa_cb);
     lv_anim_set_time(&a, duration_ms);
     lv_anim_start(&a);
 }
