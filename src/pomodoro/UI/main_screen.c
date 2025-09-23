@@ -33,8 +33,11 @@ static bool fullscreen_timer_active = false;
 static void ui_main_screen_set_bg_by_theme(lv_obj_t *parent);
 static void ui_main_screen_init_style_by_theme(void);
 static void update_timer_label(uint32_t remaining_ms);
+
 static void start_event_cb(lv_event_t *e);
 static void reset_event_cb(lv_event_t *e);
+static void setting_event_cb(lv_event_t *e);
+
 static void pomodoro_state_changed(PomodoroState_e state);
 static void timer_tick_cb(lv_timer_t * timer);
 static void ui_tick_cb(uint32_t remaining);
@@ -134,6 +137,15 @@ void ui_main_screen(lv_obj_t *parent)
                          LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_add_style(label_mode, &font_style, 0);
     lv_obj_set_style_text_font(label_mode, &lv_font_montserrat_48, 0);
+
+    LV_IMG_DECLARE(setting_icon)
+    lv_obj_t* settings_icon_img = lv_img_create(main_cont);
+    lv_img_set_src(settings_icon_img, &setting_icon);
+    lv_obj_set_grid_cell(settings_icon_img, LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_style_margin_right(settings_icon_img, 10, 0);
+    lv_obj_set_style_margin_top(settings_icon_img, 10, 0);
+    lv_obj_add_flag(settings_icon_img, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(settings_icon_img, setting_event_cb, LV_EVENT_CLICKED, NULL);
 
     /* Timer row */
     lv_obj_t *timer_cont = lv_obj_create(main_cont);
@@ -376,4 +388,10 @@ static void ui_tick_cb(uint32_t remaining) {
 
 static void timer_tick_cb(lv_timer_t * timer) {
     timer_tick_handler();
+}
+
+static void setting_event_cb(lv_event_t *e)
+{
+    LV_LOG_USER("Moving to Settings page...\n");
+    show_settings_screen(main_cont);
 }

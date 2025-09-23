@@ -11,6 +11,7 @@ set(POMODORO_COMPONENTS
     Core
     HAL
     UI
+    assets
 )
 
 # Add pomodoro library
