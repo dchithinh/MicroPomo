@@ -8,6 +8,8 @@
 #include "main_screen.h"
 #include "full_screen.h"
 
+#define POMO_MOVE_TO_FULLSCREEN_SEC     10
+
 static lv_obj_t *main_cont;
 
 static lv_obj_t *label_mode;
@@ -76,6 +78,7 @@ static void ui_main_screen_init_style_by_theme(void) {
     if (ui_get_theme() == POMO_DARK_THEME) {
         lv_style_set_width(&progress_main_style, 10);
         lv_style_set_arc_color(&progress_main_style, lv_color_hex(0x000000));
+        lv_style_set_arc_opa(&progress_main_style, LV_OPA_50);
 
         lv_style_set_width(&progress_indic_style, 10);
         lv_style_set_arc_color(&progress_indic_style, lv_color_hex(0x00ff88));
@@ -368,7 +371,7 @@ static void ui_tick_cb(uint32_t remaining) {
     PomodoroState_e state = pomodoro_get_state();
     if (state == POMODORO_WORK) {
         work_state_elapsed_sec++;
-        if (!fullscreen_timer_active && work_state_elapsed_sec >= 3) {
+        if (!fullscreen_timer_active && work_state_elapsed_sec >= POMO_MOVE_TO_FULLSCREEN_SEC) {
             // Show fullscreen overlay after 10 seconds
             show_fullscreen_timer(main_cont);
             fullscreen_timer_active = true;

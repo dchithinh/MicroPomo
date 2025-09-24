@@ -7,11 +7,13 @@ typedef struct {
     lv_obj_t *work_roller;
     lv_obj_t *short_roller;
     lv_obj_t *long_roller;
+    lv_obj_t *cycle_roller;
 } rollers_t;
 
 static int settings_work_time = 25;
 static int settings_short_break = 5;
 static int settings_long_break = 15;
+static int settings_cycle_count = 4;
 
 static lv_obj_t *settings_screen;
 static lv_style_t setting_section_style;
@@ -28,7 +30,7 @@ static void ui_setting_screen_init()
     lv_style_set_text_color(&setting_section_style, lv_color_hex(0x4169E1));
    
     lv_style_init(&setting_label_style);
-    lv_style_set_text_font(&setting_label_style, &lv_font_montserrat_16);
+    lv_style_set_text_font(&setting_label_style, &lv_font_montserrat_14);
     lv_style_set_text_color(&setting_label_style, lv_color_hex(0xADD8E6));
     
 }
@@ -39,16 +41,20 @@ pomodoro_theme_e ui_get_theme(void) {
 }
 
 // Updated roller creation function
-lv_obj_t *setting_screen_create_roller(lv_obj_t *parent, int min, int max, int initial_value)
+lv_obj_t *setting_screen_create_roller(lv_obj_t *parent, int min, int max, int initial_value, char *unit)
 {
     static lv_style_t style_sel;
     static bool style_inited = false;
 
+    if (strlen(unit) + 2 + 1 + 1 > 7) {
+        LV_LOG_WARN("Unit string too long, truncating to 3 chars.\n");
+        unit[3] = '\0'; // Truncate to 3 characters
+    }
     // Build options string
     static char opts[150]; // Each "xx min\n" can be up to 7 chars, so 25*7=175 is safe.
     char *p = opts;
     for (int i = min; i <= max; i++) {
-        p += sprintf(p, "%d min", i);
+        p += sprintf(p, "%d %s", i, unit);
         if (i != max) *p++ = '\n';
     }
     *p = '\0';
@@ -83,49 +89,6 @@ lv_obj_t *setting_screen_create_roller(lv_obj_t *parent, int min, int max, int i
     return roller;
 }
 
-// static void lv_spinbox_increment_event_cb(lv_event_t * e)
-// {
-//     lv_event_code_t code = lv_event_get_code(e);
-//     if(code == LV_EVENT_SHORT_CLICKED || code  == LV_EVENT_LONG_PRESSED_REPEAT) {
-//         lv_spinbox_increment(cycle_sb);
-//     }
-// }
-
-// static void lv_spinbox_decrement_event_cb(lv_event_t * e)
-// {
-//     lv_event_code_t code = lv_event_get_code(e);
-//     if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
-//         lv_spinbox_decrement(cycle_sb);
-//     }
-// }
-
-static lv_obj_t *setting_screen_create_spinbox(lv_obj_t *parent, int32_t min, int32_t max)
-{
-    static lv_obj_t *sb;
-    sb = lv_spinbox_create(parent);
-    lv_spinbox_set_range(sb, min, max);
-    lv_spinbox_set_digit_format(sb, 2, 0);
-    lv_spinbox_step_prev(sb);
-    lv_obj_set_width(sb, 50);
-
-    int32_t h = lv_obj_get_height(sb);
-
-    lv_obj_t * btn = lv_button_create(parent);
-    lv_obj_set_size(btn, h, h);
-    lv_obj_align_to(btn, sb, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
-    lv_obj_set_style_bg_image_src(btn, LV_SYMBOL_PLUS, 0);
-    // lv_obj_add_event_cb(btn, lv_spinbox_increment_event_cb, LV_EVENT_ALL,  NULL);
-
-    btn = lv_button_create(parent);
-    lv_obj_set_size(btn, h, h);
-    lv_obj_align_to(btn, sb, LV_ALIGN_OUT_LEFT_MID, -5, 0);
-    lv_obj_set_style_bg_image_src(btn, LV_SYMBOL_MINUS, 0);
-    // lv_obj_add_event_cb(btn, lv_spinbox_decrement_event_cb, LV_EVENT_ALL, NULL);
-
-    return sb;
-
-}
-
 // Event handler to get all roller values
 static void roller_event_handler(lv_event_t *e)
 {
@@ -135,6 +98,7 @@ static void roller_event_handler(lv_event_t *e)
     int work_idx = lv_roller_get_selected(rollers->work_roller);
     int short_idx = lv_roller_get_selected(rollers->short_roller);
     int long_idx = lv_roller_get_selected(rollers->long_roller);
+    int cycle_idx = lv_roller_get_selected(rollers->cycle_roller);
 
     char buf[8];
 
@@ -147,7 +111,10 @@ static void roller_event_handler(lv_event_t *e)
     lv_roller_get_selected_str(rollers->long_roller, buf, sizeof(buf));
     settings_long_break = atoi(buf);
 
-    LV_LOG_USER("Work: %d, Short: %d, Long: %d\n", settings_work_time, settings_short_break, settings_long_break);
+    lv_roller_get_selected_str(rollers->cycle_roller, buf, sizeof(buf));
+    settings_cycle_count = atoi(buf);
+
+    LV_LOG_USER("Work: %d, Short: %d, Long: %d, Cycle: %d\n", settings_work_time, settings_short_break, settings_long_break, settings_cycle_count);
 }
 
 static void setting_event_handler(lv_event_t *e)
@@ -155,7 +122,7 @@ static void setting_event_handler(lv_event_t *e)
     LV_LOG_USER("Settings saved. Returning to Main screen...\n");
 
     //Update settings in Pomodoro core
-    pomodoro_update_durations(settings_work_time, settings_short_break, settings_long_break, 4);
+    pomodoro_update_durations(settings_work_time, settings_short_break, settings_long_break, settings_cycle_count);
 
     if (settings_screen) {
         lv_obj_del(settings_screen);
@@ -175,11 +142,11 @@ void show_settings_screen(lv_obj_t *parent)
 
     lv_obj_t *timer_section = lv_obj_create(settings_screen);
     lv_obj_set_style_bg_color(timer_section, lv_color_hex(0xD3D3D3), 0);
-    const static int col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-    const static int row_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+    const static int col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
+    const static int row_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 
     lv_obj_set_grid_dsc_array(timer_section, col_dsc, row_dsc);
-    lv_obj_set_size(timer_section, LV_PCT(100), 200);
+    lv_obj_set_size(timer_section, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_style_bg_opa(timer_section, LV_OPA_10, 0);
     lv_obj_set_style_border_width(timer_section, 0, 0);
     lv_obj_set_style_radius(timer_section, 0, 0);
@@ -193,35 +160,35 @@ void show_settings_screen(lv_obj_t *parent)
     lv_obj_set_grid_cell(work_label, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(work_label, "Pomodoro");
     lv_obj_add_style(work_label, &setting_label_style, 0);
-    rollers.work_roller = setting_screen_create_roller(timer_section, 1, 25, 1);
+    rollers.work_roller = setting_screen_create_roller(timer_section, 1, 25, 1, "min");
     lv_obj_set_grid_cell(rollers.work_roller, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 2, 1);
 
     lv_obj_t *short_break_label = lv_label_create(timer_section);
     lv_obj_set_grid_cell(short_break_label, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(short_break_label, "Short Break");
     lv_obj_add_style(short_break_label, &setting_label_style, 0);
-    rollers.short_roller = setting_screen_create_roller(timer_section, 1, 5, 1);
+    rollers.short_roller = setting_screen_create_roller(timer_section, 1, 5, 1, "min");
     lv_obj_set_grid_cell(rollers.short_roller, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_START, 2, 1);
 
     lv_obj_t *long_break_label = lv_label_create(timer_section);
     lv_obj_set_grid_cell(long_break_label, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(long_break_label, "Long Break");
     lv_obj_add_style(long_break_label, &setting_label_style, 0);
-    rollers.long_roller = setting_screen_create_roller(timer_section, 1, 10, 5);
+    rollers.long_roller = setting_screen_create_roller(timer_section, 1, 10, 5, "min");
     lv_obj_set_grid_cell(rollers.long_roller, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 2, 1);
-
+    
     lv_obj_t *cycle_label = lv_label_create(timer_section);
-    lv_label_set_text(cycle_label, "Cycle:");
+    lv_obj_set_grid_cell(cycle_label, LV_GRID_ALIGN_START, 3, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+    lv_label_set_text(cycle_label, "Cycles");
     lv_obj_add_style(cycle_label, &setting_label_style, 0);
-    lv_obj_set_grid_cell(cycle_label, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 3, 1);
-
-    cycle_setting = setting_screen_create_spinbox(timer_section, 1, 20);
-    lv_obj_set_grid_cell(cycle_setting, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 3, 1);
+    rollers.cycle_roller = setting_screen_create_roller(timer_section, 1, 4, 1, "");
+    lv_obj_set_grid_cell(rollers.cycle_roller, LV_GRID_ALIGN_START, 3, 1, LV_GRID_ALIGN_START, 2, 1);
 
     // Attach the same handler to all rollers, passing the struct as user data
     lv_obj_add_event_cb(rollers.work_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
     lv_obj_add_event_cb(rollers.short_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
     lv_obj_add_event_cb(rollers.long_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
+    lv_obj_add_event_cb(rollers.cycle_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
 
 
     lv_obj_t *btn_save = lv_btn_create(settings_screen);

@@ -21,8 +21,8 @@ void show_fullscreen_timer(lv_obj_t *parent)
     lv_obj_center(fullscreen_timer_label);
     lv_obj_set_style_text_font(fullscreen_timer_label, &lv_font_montserrat_48, 0);
     lv_label_set_text(fullscreen_timer_label, "00:00");
+    lv_obj_set_style_text_color(fullscreen_timer_label, lv_color_hex(0x008080), 0);
     lv_obj_move_foreground(fullscreen_timer_cont);
-
 }
 
 void update_fullscreen_timer(uint32_t remaining)
