@@ -92,6 +92,12 @@ uint32_t pomodoro_get_remaining_sec(void);
 uint8_t pomodoro_get_current_cycle(void);
 
 /**
+ * @brief Get the maximum number of cycles before a long break
+ * @return Maximum cycles before a long break
+ */
+uint8_t pomodoro_get_max_cycles(void);
+
+/**
  * @brief Register callback for state changes
  * @param cb Function pointer to call on state change
  */
@@ -120,6 +126,16 @@ bool pomodoro_is_resume_transition(void);
  * @return true if the current state is PAUSED_WORK or PAUSED_BREAK, false otherwise
  */
 bool pomodoro_is_pause_transition(void);
+
+/**
+ * @brief Update durations and cycle count
+ * @param work_min New work duration in minutes
+ * @param short_break_min New short break duration in minutes
+ * @param long_break_min New long break duration in minutes
+ * @param cycles_before_long New number of cycles before a long break
+ */
+void pomodoro_update_durations(uint32_t work_min, uint32_t short_break_min,
+                               uint32_t long_break_min, uint8_t cycles_before_long);
 
 #ifdef __cplusplus
 }

@@ -304,7 +304,7 @@ static void ui_update_cycle_counter(void)
     char buf[32];
     snprintf(buf, sizeof(buf), "Cycle: %d / %d", 
              pomodoro_get_current_cycle(),
-             POMODORO_DEF_CYCLES_BEFORE_LONG);
+             pomodoro_get_max_cycles());
     lv_label_set_text(label_cycle, buf);
 }
 

@@ -140,6 +140,11 @@ uint8_t pomodoro_get_current_cycle(void)
     return cycle_count;
 }
 
+uint8_t pomodoro_get_max_cycles(void)
+{
+    return max_cycles;
+}
+
 bool pomodoro_is_resume_transition(void)
 {
     // True if previous_state was PAUSED_WORK and current_state is WORK,
@@ -155,4 +160,18 @@ bool pomodoro_is_pause_transition(void)
         (current_state == POMODORO_PAUSED_WORK ||
          current_state == POMODORO_PAUSED_BREAK)
     );
+}
+
+void pomodoro_update_durations(uint32_t work_min, uint32_t short_break_min,
+                               uint32_t long_break_min, uint8_t cycles_before_long)
+{
+    work_duration = work_min * 60 * 1000;
+    short_break_duration = short_break_min * 60 * 1000;
+    long_break_duration = long_break_min * 60 * 1000;
+    max_cycles = cycles_before_long;
+
+    // If currently idle, update remaining_ms to new work duration
+    if (current_state == POMODORO_IDLE) {
+        remaining_ms = work_duration;
+    }
 }
