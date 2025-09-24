@@ -83,6 +83,49 @@ lv_obj_t *setting_screen_create_roller(lv_obj_t *parent, int min, int max, int i
     return roller;
 }
 
+// static void lv_spinbox_increment_event_cb(lv_event_t * e)
+// {
+//     lv_event_code_t code = lv_event_get_code(e);
+//     if(code == LV_EVENT_SHORT_CLICKED || code  == LV_EVENT_LONG_PRESSED_REPEAT) {
+//         lv_spinbox_increment(cycle_sb);
+//     }
+// }
+
+// static void lv_spinbox_decrement_event_cb(lv_event_t * e)
+// {
+//     lv_event_code_t code = lv_event_get_code(e);
+//     if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+//         lv_spinbox_decrement(cycle_sb);
+//     }
+// }
+
+static lv_obj_t *setting_screen_create_spinbox(lv_obj_t *parent, int32_t min, int32_t max)
+{
+    static lv_obj_t *sb;
+    sb = lv_spinbox_create(parent);
+    lv_spinbox_set_range(sb, min, max);
+    lv_spinbox_set_digit_format(sb, 2, 0);
+    lv_spinbox_step_prev(sb);
+    lv_obj_set_width(sb, 50);
+
+    int32_t h = lv_obj_get_height(sb);
+
+    lv_obj_t * btn = lv_button_create(parent);
+    lv_obj_set_size(btn, h, h);
+    lv_obj_align_to(btn, sb, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+    lv_obj_set_style_bg_image_src(btn, LV_SYMBOL_PLUS, 0);
+    // lv_obj_add_event_cb(btn, lv_spinbox_increment_event_cb, LV_EVENT_ALL,  NULL);
+
+    btn = lv_button_create(parent);
+    lv_obj_set_size(btn, h, h);
+    lv_obj_align_to(btn, sb, LV_ALIGN_OUT_LEFT_MID, -5, 0);
+    lv_obj_set_style_bg_image_src(btn, LV_SYMBOL_MINUS, 0);
+    // lv_obj_add_event_cb(btn, lv_spinbox_decrement_event_cb, LV_EVENT_ALL, NULL);
+
+    return sb;
+
+}
+
 // Event handler to get all roller values
 static void roller_event_handler(lv_event_t *e)
 {
@@ -122,7 +165,8 @@ static void setting_event_handler(lv_event_t *e)
 
 void show_settings_screen(lv_obj_t *parent)
 {
-    static rollers_t rollers; 
+    static rollers_t rollers;
+    static lv_obj_t *cycle_setting;
 
     settings_screen = lv_obj_create(parent);
     ui_setting_screen_set_bg_by_theme(settings_screen);
@@ -165,6 +209,14 @@ void show_settings_screen(lv_obj_t *parent)
     lv_obj_add_style(long_break_label, &setting_label_style, 0);
     rollers.long_roller = setting_screen_create_roller(timer_section, 1, 10, 5);
     lv_obj_set_grid_cell(rollers.long_roller, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 2, 1);
+
+    lv_obj_t *cycle_label = lv_label_create(timer_section);
+    lv_label_set_text(cycle_label, "Cycle:");
+    lv_obj_add_style(cycle_label, &setting_label_style, 0);
+    lv_obj_set_grid_cell(cycle_label, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_START, 3, 1);
+
+    cycle_setting = setting_screen_create_spinbox(timer_section, 1, 20);
+    lv_obj_set_grid_cell(cycle_setting, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_START, 3, 1);
 
     // Attach the same handler to all rollers, passing the struct as user data
     lv_obj_add_event_cb(rollers.work_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
