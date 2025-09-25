@@ -3,36 +3,10 @@
 #include "lvgl.h"
 #include "lvgl.h"
 
-
-static void anim_y_cb(void * var, int32_t v)
-{
-    lv_obj_set_y((lv_obj_t *)var, v);
-    lv_obj_set_x((lv_obj_t *)var, v);
-}
-
-void lv_example_flip(lv_obj_t * parent)
-{
-    lv_obj_t *upper_page = lv_obj_create(parent);
-    lv_obj_set_style_bg_color(upper_page, lv_color_hex(0xfe00e0), 0);
-    lv_obj_set_align(upper_page, LV_ALIGN_CENTER);
-
-
-    lv_anim_t a;
-    lv_anim_init(&a);
-    lv_anim_set_var(&a, upper_page);
-    lv_anim_set_values(&a, 0, 90);
-    lv_anim_set_time(&a, 2000);
-    lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
-    lv_anim_set_exec_cb(&a, anim_y_cb);
-    lv_anim_start(&a);
-}
-
-
-
 void demo_load_gif(lv_obj_t * parent)
 {
   lv_obj_t * gif = lv_gif_create(parent);
-  lv_gif_set_src(gif, "S:/run_target.gif");
+  lv_gif_set_src(gif, "S:/png/run_target.gif");
   lv_obj_align(gif , LV_ALIGN_CENTER, 0, 0);
 }
 
@@ -76,5 +50,66 @@ void demo_widget(lv_obj_t * parent)
   lv_obj_set_grid_cell(cycle, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 3, 1);
   lv_obj_t * cycle_label = lv_label_create(cycle);
   lv_label_set_text(cycle_label, "Cycle");
+
+}
+
+lv_obj_t *screen1 = NULL;
+lv_obj_t *screen2 = NULL;
+
+// Custom exec callback for LVGL animation
+void anim_set_opa_cb(void *var, int32_t value)
+{
+    lv_obj_set_style_opa((lv_obj_t *)var, value, LV_PART_MAIN);
+}
+
+void transis_cb(lv_event_t *e)
+{
+    LV_LOG_USER("Transitioning screens");
+    lv_event_code_t code = lv_event_get_code(e);
+    
+    if (code == LV_EVENT_GESTURE) {
+      LV_LOG_USER("Gesture detected\n");
+    }
+
+    lv_obj_clear_flag(screen2, LV_OBJ_FLAG_HIDDEN);
+    
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, screen2);
+    lv_anim_set_values(&a, LV_OPA_0, LV_OPA_COVER);
+    lv_anim_set_exec_cb(&a, anim_set_opa_cb);
+    lv_anim_set_time(&a, 5000);
+    lv_anim_start(&a);
+    lv_obj_move_foreground(screen2);
+}
+
+void demo_screen_anim_transis(lv_obj_t *parent)
+{
+    screen1 = lv_obj_create(parent);
+    lv_obj_add_flag(screen1, LV_OBJ_FLAG_GESTURE_BUBBLE);
+    lv_obj_set_size(screen1, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_bg_color(screen1, lv_color_hex(0x300000), 0);
+
+    lv_obj_t *button1 = lv_btn_create(screen1);
+    lv_obj_t* label1 = lv_label_create(button1);
+    lv_label_set_text(label1, "Transition");
+    lv_obj_center(button1);
+
+    lv_obj_add_event_cb(button1, transis_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(screen1, transis_cb, LV_EVENT_GESTURE, NULL);
+
+
+    screen2 = lv_obj_create(parent);
+    lv_obj_set_size(screen2, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_bg_color(screen2, lv_color_hex(0x005000), 0);
+    lv_obj_add_flag(screen2, LV_OBJ_FLAG_HIDDEN);
+
+}
+
+void demo_load_img(lv_obj_t * parent)
+{
+  lv_obj_t* settings_icon_img = lv_img_create(parent);
+  lv_img_set_src(settings_icon_img, "S:/png/settings_icon.png");
+  lv_obj_set_align(settings_icon_img, LV_ALIGN_CENTER);
 
 }
