@@ -175,3 +175,23 @@ void pomodoro_update_durations(uint32_t work_min, uint32_t short_break_min,
         remaining_ms = work_duration;
     }
 }
+
+int pomodoro_get_work_time()
+{
+    return work_duration;
+}
+
+int pomodoro_get_short_break()
+{
+    return short_break_duration;
+}
+
+int pomodoro_get_long_break()
+{
+    return long_break_duration;
+}
+
+int pomodoro_get_cycle_count()
+{
+   return max_cycles;
+}

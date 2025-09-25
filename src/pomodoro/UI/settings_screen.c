@@ -125,6 +125,8 @@ static void setting_event_handler(lv_event_t *e)
     //Update settings in Pomodoro core
     pomodoro_update_durations(settings_work_time, settings_short_break, settings_long_break, settings_cycle_count);
 
+    ui_main_screen(lv_scr_act());
+
     if (settings_screen) {
         lv_obj_del(settings_screen);
         settings_screen = NULL;

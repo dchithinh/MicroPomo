@@ -16,10 +16,10 @@
 #define POMODORO_DEF_CYCLES_BEFORE_LONG     2
 
 void event_init(void) {
-    pomodoro_init(POMODORO_DEF_WORK_MIN,
-                  POMODORO_DEF_SHORT_BREAK_MIN,
-                  POMODORO_DEF_LONG_BREAK_MIN,
-                  POMODORO_DEF_CYCLES_BEFORE_LONG);
+    pomodoro_init(pomodoro_get_work_time() / (60 * 1000),
+                  pomodoro_get_short_break() /  (60 * 1000),
+                  pomodoro_get_long_break() /  (60 * 1000),
+                  pomodoro_get_cycle_count());
 }
 
 void event_dispatch(EventType_e type, void *data) {

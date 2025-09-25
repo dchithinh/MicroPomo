@@ -137,6 +137,11 @@ bool pomodoro_is_pause_transition(void);
 void pomodoro_update_durations(uint32_t work_min, uint32_t short_break_min,
                                uint32_t long_break_min, uint8_t cycles_before_long);
 
+int pomodoro_get_work_time(void);
+int pomodoro_get_short_break(void);
+int pomodoro_get_long_break(void);
+int pomodoro_get_cycle_count(void);
+
 #ifdef __cplusplus
 }
 #endif

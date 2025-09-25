@@ -1,7 +1,10 @@
 #include "timer.h"
 #include "lvgl.h"
+
 #ifdef USE_HAL_TICK
     #include "stm32f4xx_hal.h"   // Or your MCU HAL header
+#elif defined HAL_PICO
+    //Nothing to include
 #else
     #include <SDL.h>  // Add SDL include for tick counter
 #endif
@@ -26,6 +29,9 @@ static inline uint32_t get_tick_ms(void) {
     uint32_t tick = 0;
 #ifdef USE_HAL_TICK
     tick = HAL_GetTick();
+#elif defined HAL_PICO
+    extern uint32_t tick_timer();
+    tick = tick_timer();
 #else
     tick = SDL_GetTicks();  // Use SDL's tick counter instead of fake increment
 #endif

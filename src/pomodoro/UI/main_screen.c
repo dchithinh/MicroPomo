@@ -96,6 +96,22 @@ static void ui_main_screen_init_style_by_theme(void) {
     }
 }
 
+static void label_event_cb(lv_event_t * e)
+{
+    lv_obj_t * label = lv_event_get_target(e);
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if(code == LV_EVENT_PRESSED || code == LV_EVENT_FOCUSED || code == LV_EVENT_HOVER_OVER) {
+        // Stop scrolling: disable long mode
+        lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
+    }
+    else if(code == LV_EVENT_RELEASED || code == LV_EVENT_DEFOCUSED || code == LV_EVENT_HOVER_LEAVE) {
+        // Resume scrolling: enable scroll again
+        lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    }
+}
+
+
 void ui_main_screen(lv_obj_t *parent)
 {
     // Initialize systems
@@ -113,11 +129,11 @@ void ui_main_screen(lv_obj_t *parent)
     /* Grid: 6 rows, 1 column */
     static int col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
     static int row_dsc[] = {
-        LV_GRID_FR(1),     // Mode
+        LV_GRID_FR(2),     // Mode
         LV_GRID_FR(5),     // Timer + bar
         LV_GRID_FR(1),     // Buttons
         LV_GRID_FR(1),     // Cycle status
-        LV_GRID_FR(1),     // Spacer
+        LV_GRID_FR(1),     // Quotes
         LV_GRID_TEMPLATE_LAST
     };
 
@@ -139,12 +155,13 @@ void ui_main_screen(lv_obj_t *parent)
                          LV_GRID_ALIGN_CENTER, 0, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
     lv_obj_add_style(label_mode, &font_style, 0);
-    lv_obj_set_style_text_font(label_mode, &lv_font_montserrat_48, 0);
+    lv_obj_set_style_text_font(label_mode, &lv_font_montserrat_36, 0);
+    lv_obj_set_style_text_color(label_mode, lv_color_hex(0x00ff88), 0);
 
     LV_IMG_DECLARE(setting_icon)
     lv_obj_t* settings_icon_img = lv_img_create(main_cont);
     lv_img_set_src(settings_icon_img, &setting_icon);
-    lv_obj_set_grid_cell(settings_icon_img, LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_grid_cell(settings_icon_img, LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_START, 0, 1);
     lv_obj_set_style_margin_right(settings_icon_img, 10, 0);
     lv_obj_set_style_margin_top(settings_icon_img, 10, 0);
     lv_obj_add_flag(settings_icon_img, LV_OBJ_FLAG_CLICKABLE);
@@ -179,6 +196,7 @@ void ui_main_screen(lv_obj_t *parent)
     /* Timer label - positioned in center of circle */
     label_timer = lv_label_create(progress);  // Create as child of arc for centering
     lv_label_set_text(label_timer, "25:00");
+    lv_obj_set_style_text_color(label_timer, lv_color_hex(0x00ff88), 0);
     lv_obj_set_style_text_font(label_timer, &lv_font_montserrat_28, 0);
     lv_obj_center(label_timer);  // Center within the arc
 
@@ -203,14 +221,14 @@ void ui_main_screen(lv_obj_t *parent)
                          LV_GRID_ALIGN_STRETCH, 2, 1);
 
     btn_start = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_start, 90, 40);
+    lv_obj_set_size(btn_start, 90, LV_SIZE_CONTENT);
     lv_obj_add_event_cb(btn_start, start_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_start = lv_label_create(btn_start);
     lv_label_set_text(label_start, "Start");
     lv_obj_center(label_start);
 
     btn_reset = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_reset, 90, 40);
+    lv_obj_set_size(btn_reset, 90, LV_SIZE_CONTENT);
     lv_obj_add_event_cb(btn_reset, reset_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_reset = lv_label_create(btn_reset);
     lv_label_set_text(label_reset, "Reset");
@@ -222,6 +240,20 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_grid_cell(label_cycle,
                          LV_GRID_ALIGN_CENTER, 0, 1,
                          LV_GRID_ALIGN_CENTER, 3, 1);
+
+    
+    lv_obj_t *label_quote = lv_label_create(main_cont);
+    lv_label_set_text(label_quote, "Focus on being productive instead of busy");
+    lv_obj_set_grid_cell(label_quote, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 4, 1);
+    lv_obj_set_style_text_color(label_quote, lv_color_hex(0x00FF00), 0);
+    lv_obj_set_style_text_font(label_quote, &lv_font_montserrat_14, 0);
+    lv_label_set_long_mode(label_quote, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_width(label_quote, 300);
+    lv_obj_add_flag(label_quote, LV_OBJ_FLAG_CLICKABLE);
+
+    // Add event handler to pause/resume
+    lv_obj_add_event_cb(label_quote, label_event_cb, LV_EVENT_ALL, NULL);
+
 
     /* Update initial timer display */
     update_timer_label(remaining_sec * 1000);
@@ -309,6 +341,7 @@ static void ui_update_cycle_counter(void)
              pomodoro_get_current_cycle(),
              pomodoro_get_max_cycles());
     lv_label_set_text(label_cycle, buf);
+    lv_obj_set_style_text_color(label_cycle, lv_color_hex(0x00FFFF), 0);
 }
 
 static void update_timer_and_progress(PomodoroState_e state)
@@ -330,12 +363,14 @@ static void pomodoro_state_changed(PomodoroState_e state)
 
     update_timer_and_progress(state);
     ui_update_cycle_counter();
+
+    work_state_elapsed_sec = 0;
 }
 
 static void start_event_cb(lv_event_t *e)
 {
     PomodoroState_e current_state = pomodoro_get_state();
-    
+
     switch (current_state) {
         case POMODORO_IDLE:
             // Start new work session
@@ -397,4 +432,5 @@ static void setting_event_cb(lv_event_t *e)
 {
     LV_LOG_USER("Moving to Settings page...\n");
     show_settings_screen(main_cont);
+
 }
