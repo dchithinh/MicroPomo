@@ -16,19 +16,26 @@ static int settings_long_break = 15;
 static int settings_cycle_count = 4;
 
 static lv_obj_t *settings_screen;
-static lv_style_t setting_section_style;
+static lv_style_t setting_section_label_style;
 static lv_style_t setting_label_style;
-
+static lv_style_t setting_section_style;
 
 static void ui_setting_screen_set_bg_by_theme(lv_obj_t *parent);
 static void ui_setting_screen_init(void);
 
 static void ui_setting_screen_init()
 {
-    lv_style_init(&setting_section_style);
-    lv_style_set_text_font(&setting_section_style, &lv_font_montserrat_22);
-    lv_style_set_text_color(&setting_section_style, lv_color_hex(0x4169E1));
+    lv_style_init(&setting_section_label_style);
+    lv_style_set_text_font(&setting_section_label_style, &lv_font_montserrat_22);
+    lv_style_set_text_color(&setting_section_label_style, lv_color_hex(0x4169E1));
    
+    lv_style_init(&setting_section_style);
+    lv_style_set_size(&setting_section_style, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_style_set_bg_color(&setting_section_style, lv_color_hex(0xD3D3D3));
+    lv_style_set_border_width(&setting_section_style, 0);
+    lv_style_set_radius(&setting_section_style, 0);
+    lv_style_set_bg_opa(&setting_section_style, LV_OPA_10);
+
     lv_style_init(&setting_label_style);
     lv_style_set_text_font(&setting_label_style, &lv_font_montserrat_14);
     lv_style_set_text_color(&setting_label_style, lv_color_hex(0xADD8E6));
@@ -144,20 +151,16 @@ void show_settings_screen(lv_obj_t *parent)
     ui_setting_screen_init();
 
     lv_obj_t *timer_section = lv_obj_create(settings_screen);
-    lv_obj_set_style_bg_color(timer_section, lv_color_hex(0xD3D3D3), 0);
+    lv_obj_add_style(timer_section, &setting_section_style, 0);
     const static int timesection_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
     const static int timesection_row_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 
     lv_obj_set_grid_dsc_array(timer_section, timesection_col_dsc, timesection_row_dsc);
-    lv_obj_set_size(timer_section, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_bg_opa(timer_section, LV_OPA_10, 0);
-    lv_obj_set_style_border_width(timer_section, 0, 0);
-    lv_obj_set_style_radius(timer_section, 0, 0);
 
-    lv_obj_t *section_title = lv_label_create(timer_section);
-    lv_obj_set_grid_cell(section_title, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_END, 0, 1);
-    lv_label_set_text(section_title, "TIMER");
-    lv_obj_add_style(section_title, &setting_section_style, 0);
+    lv_obj_t *timer_title = lv_label_create(timer_section);
+    lv_obj_set_grid_cell(timer_title, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_END, 0, 1);
+    lv_label_set_text(timer_title, "TIMER");
+    lv_obj_add_style(timer_title, &setting_section_label_style, 0);
 
     lv_obj_t *work_label = lv_label_create(timer_section);
     lv_obj_set_grid_cell(work_label, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
@@ -192,6 +195,19 @@ void show_settings_screen(lv_obj_t *parent)
     lv_obj_add_event_cb(rollers.short_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
     lv_obj_add_event_cb(rollers.long_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
     lv_obj_add_event_cb(rollers.cycle_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
+
+
+    lv_obj_t *quote_section = lv_obj_create(settings_screen);
+    lv_obj_remove_style_all(quote_section);
+    lv_obj_add_style(quote_section, &setting_section_style, 0);
+    lv_obj_align_to(quote_section, timer_section, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+
+    lv_obj_t *quote_title = lv_label_create(quote_section);
+    lv_label_set_text(quote_title, "QUOTE");
+    lv_obj_add_style(quote_title, &setting_section_label_style, 0);
+    // lv_obj_align_to(quote_title, timer_title, LV_ALIGN_OUT_BOTTOM_MID, 50, 50);
+    
+
 
 
     lv_obj_t *btn_save = lv_btn_create(settings_screen);
