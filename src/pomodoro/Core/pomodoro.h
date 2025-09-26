@@ -170,6 +170,9 @@ int pomodoro_get_cycle_count(void);
  */
 uint8_t pomodoro_get_work_progress_in_percent(void);
 
+
+int8_t pomodoro_get_pause_break_type(void);
+
 #ifdef __cplusplus
 }
 #endif

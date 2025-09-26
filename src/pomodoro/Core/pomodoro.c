@@ -38,7 +38,6 @@ static void change_state(PomodoroState_e new_state, uint32_t duration_ms) {
 static void on_timer_tick(uint32_t remaining_ms) 
 {
     pomo_core_remaining_ms = remaining_ms;  // Store current remaining time
-    LV_LOG_USER("[Pomodoro] Timer tick: %d ms remaining\n", pomo_core_remaining_ms);
     if (pomo_core_tick_cb) {
         pomo_core_tick_cb(pomo_core_remaining_ms);  // Pass current remaining time to UI
     }
@@ -165,6 +164,22 @@ bool pomodoro_is_pause_transition(void)
     );
 }
 
+
+int8_t pomodoro_get_pause_break_type(void)
+{
+    if (pomo_core_current_state == POMODORO_PAUSED_BREAK) {
+        // Check the previous state to know which break was paused
+        if (pomo_core_previous_state == POMODORO_SHORT_BREAK) {
+            return POMODORO_SHORT_BREAK;
+        }
+        if (pomo_core_previous_state == POMODORO_LONG_BREAK) {
+            return POMODORO_LONG_BREAK;
+        }
+    }
+
+    return 0;
+}
+
 void pomodoro_update_durations(uint32_t work_min, uint32_t short_break_min,
                                uint32_t long_break_min, uint8_t cycles_before_long)
 {
@@ -205,7 +220,5 @@ uint8_t pomodoro_get_work_progress_in_percent(void)
     if (pomo_core_work_duration_ms == 0) return 0;
 
     percent = (uint8_t)(((pomo_core_work_duration_ms - pomo_core_remaining_ms) * 100) / pomo_core_work_duration_ms);
-    LV_LOG_USER("[Pomodoro] Remaining msec: %d, Work duration msec: %d\n",
-                    pomo_core_remaining_ms , pomo_core_work_duration_ms);
     return percent;
 }

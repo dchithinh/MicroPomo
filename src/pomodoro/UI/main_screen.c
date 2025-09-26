@@ -31,6 +31,8 @@ static lv_obj_t *ready_icon;
 static lv_obj_t *work_race_icon;
 static lv_obj_t *work_run_icon;
 static lv_obj_t *work_speed_icon;
+static lv_obj_t *short_break_icon;
+static lv_obj_t *long_break_icon;
 static lv_obj_t *objective_icon;
 
 static bool timer_running = false;
@@ -127,18 +129,32 @@ void ui_main_screen_update_mode_icon(PomodoroState_e curr_state) {
     if (work_run_icon)      lv_obj_add_flag(work_run_icon, LV_OBJ_FLAG_HIDDEN);
     if (work_speed_icon)    lv_obj_add_flag(work_speed_icon, LV_OBJ_FLAG_HIDDEN);
     if (objective_icon)     lv_obj_add_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
+    if (short_break_icon)   lv_obj_add_flag(short_break_icon, LV_OBJ_FLAG_HIDDEN);
+    if (long_break_icon)    lv_obj_add_flag(long_break_icon, LV_OBJ_FLAG_HIDDEN);
 
     switch (curr_state) {
         case POMODORO_IDLE:
             lv_obj_clear_flag(ready_icon, LV_OBJ_FLAG_HIDDEN);
             break;
         case POMODORO_WORK:
+        case POMODORO_PAUSED_WORK:
             lv_obj_clear_flag(work_run_icon, LV_OBJ_FLAG_HIDDEN);
-            // lv_obj_clear_flag(work_race_icon, LV_OBJ_FLAG_HIDDEN);
-            // lv_obj_clear_flag(work_speed_icon, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
-
             break;
+        case POMODORO_SHORT_BREAK:
+            lv_obj_clear_flag(short_break_icon, LV_OBJ_FLAG_HIDDEN);
+            break;
+        case POMODORO_LONG_BREAK:
+            lv_obj_clear_flag(long_break_icon, LV_OBJ_FLAG_HIDDEN);
+            break;
+        case POMODORO_PAUSED_BREAK:
+            if(pomodoro_get_pause_break_type() == POMODORO_SHORT_BREAK) {
+                lv_obj_clear_flag(short_break_icon, LV_OBJ_FLAG_HIDDEN);
+            }
+            else {
+                lv_obj_clear_flag(long_break_icon, LV_OBJ_FLAG_HIDDEN);
+            }
+
         default:
             // Optionally hide all
             break;
@@ -182,7 +198,7 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_style_pad_row(main_cont, 8, 0);   // spacing between rows
 
     /* Mode */
-#if 1 //Will be removed/replaced
+#if 0 //Will be removed/replaced
     label_mode = lv_label_create(main_cont);
     lv_label_set_text(label_mode, "Focus");
     lv_obj_set_grid_cell(label_mode,
@@ -206,11 +222,14 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_flex_flow(icon_mode_cont, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(icon_mode_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
+    //TODO: Should add main screen de-constructor for these deinit
     if (ready_icon)         lv_obj_del(ready_icon);
     if (work_speed_icon)    lv_obj_del(work_speed_icon);
     if (work_run_icon)      lv_obj_del(work_run_icon);
     if (work_race_icon)     lv_obj_del(work_race_icon);
     if (objective_icon)     lv_obj_del(objective_icon);
+    if (short_break_icon)   lv_obj_del(short_break_icon);
+    if (long_break_icon)    lv_obj_del(long_break_icon);
 
     ready_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(ready_icon, &icon_style, 0);
@@ -231,6 +250,14 @@ void ui_main_screen(lv_obj_t *parent)
     objective_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(objective_icon, &icon_style, 0);
     lv_img_set_src(objective_icon, "S:/png/objective.png");
+
+    short_break_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(short_break_icon, &icon_style, 0);
+    lv_img_set_src(short_break_icon, "S:/png/short_break.png");
+
+    long_break_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(long_break_icon, &icon_style, 0);
+    lv_img_set_src(long_break_icon, "S:/png/long_break.png");
 
     ui_main_screen_update_mode_icon(POMODORO_IDLE);
 
@@ -338,8 +365,6 @@ void ui_main_screen(lv_obj_t *parent)
     pomodoro_state_changed(POMODORO_IDLE);
 }
 
-/* --- Callbacks --- */
-
 static void update_timer_label(uint32_t remaining_ms)
 {
     uint32_t total_seconds = remaining_ms / 1000;
@@ -359,9 +384,19 @@ static void ui_update_ctrl_button(PomodoroState_e state)
     if(state == POMODORO_IDLE) {
         lv_obj_add_flag(btn_reset, LV_OBJ_FLAG_HIDDEN); // Hide Reset
         lv_obj_set_align(btn_start, LV_ALIGN_CENTER);   // Center Start button
+
+        lv_label_set_text(lv_obj_get_child(btn_start, 0), "Start");
+        lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
+    }
+    else if (state == POMODORO_WORK) {
+        lv_label_set_text(lv_obj_get_child(btn_start, 0), "Pause");
+        lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
+        lv_obj_set_align(btn_reset, LV_ALIGN_RIGHT_MID);  // Align Reset to right
+        lv_obj_clear_flag(btn_reset, LV_OBJ_FLAG_HIDDEN); // Show Reset
     }
     else if (state == POMODORO_PAUSED_WORK ||
             state == POMODORO_PAUSED_BREAK) {
+        lv_label_set_text(lv_obj_get_child(btn_start, 0), "Resume");
         lv_obj_clear_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Show "Paused" label
     }
     else {
@@ -372,6 +407,7 @@ static void ui_update_ctrl_button(PomodoroState_e state)
     }
 }
 
+#if 0
 static void ui_update_state_text(PomodoroState_e state)
 {
    switch (state) {
@@ -410,6 +446,7 @@ static void ui_update_state_text(PomodoroState_e state)
             break;
     }
 }
+#endif
 
 static void ui_update_cycle_counter(void)
 {
@@ -435,7 +472,9 @@ static void pomodoro_state_changed(PomodoroState_e state)
 {
     ui_main_screen_update_mode_icon(state);
     ui_update_ctrl_button(state);
+    #if 0
     ui_update_state_text(state);
+    #endif
 
     update_timer_and_progress(state);
     ui_update_cycle_counter();
