@@ -95,7 +95,6 @@ void timer_tick_handler(void)
     
     if (tmr.current_remaining > 0) {
         if (tmr.on_tick) {
-            LV_LOG_USER("[TIMER] Tick: %d ms remaining\n", tmr.current_remaining);
             tmr.on_tick(tmr.current_remaining);
         }
     } else {

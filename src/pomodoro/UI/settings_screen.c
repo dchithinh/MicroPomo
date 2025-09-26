@@ -53,6 +53,10 @@ lv_obj_t *setting_screen_create_roller(lv_obj_t *parent, int min, int max, int i
     static lv_style_t style_sel;
     static bool style_inited = false;
 
+    if (initial_value < min || initial_value > max) {
+        initial_value = min;
+    }
+
     if (strlen(unit) + 2 + 1 + 1 > 7) {
         LV_LOG_WARN("Unit string too long, truncating to 3 chars.\n");
         unit[3] = '\0'; // Truncate to 3 characters
@@ -130,6 +134,7 @@ static void setting_event_handler(lv_event_t *e)
     LV_LOG_USER("Settings saved. Returning to Main screen...\n");
 
     //Update settings in Pomodoro core
+    //TODO: Store setting via event_dispatcher(event, data)
     pomodoro_update_durations(settings_work_time, settings_short_break, settings_long_break, settings_cycle_count);
 
     ui_main_screen(lv_scr_act());
@@ -166,28 +171,28 @@ void show_settings_screen(lv_obj_t *parent)
     lv_obj_set_grid_cell(work_label, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(work_label, "Pomodoro");
     lv_obj_add_style(work_label, &setting_label_style, 0);
-    rollers.work_roller = setting_screen_create_roller(timer_section, 1, 25, 1, "min");
+    rollers.work_roller = setting_screen_create_roller(timer_section, 1, 25, settings_work_time, "min");
     lv_obj_set_grid_cell(rollers.work_roller, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_START, 2, 1);
 
     lv_obj_t *short_break_label = lv_label_create(timer_section);
     lv_obj_set_grid_cell(short_break_label, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(short_break_label, "Short Break");
     lv_obj_add_style(short_break_label, &setting_label_style, 0);
-    rollers.short_roller = setting_screen_create_roller(timer_section, 1, 5, 1, "min");
+    rollers.short_roller = setting_screen_create_roller(timer_section, 1, 5, settings_short_break, "min");
     lv_obj_set_grid_cell(rollers.short_roller, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_START, 2, 1);
 
     lv_obj_t *long_break_label = lv_label_create(timer_section);
     lv_obj_set_grid_cell(long_break_label, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(long_break_label, "Long Break");
     lv_obj_add_style(long_break_label, &setting_label_style, 0);
-    rollers.long_roller = setting_screen_create_roller(timer_section, 1, 10, 5, "min");
+    rollers.long_roller = setting_screen_create_roller(timer_section, 1, 10, settings_long_break, "min");
     lv_obj_set_grid_cell(rollers.long_roller, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 2, 1);
     
     lv_obj_t *cycle_label = lv_label_create(timer_section);
     lv_obj_set_grid_cell(cycle_label, LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 1, 1);
     lv_label_set_text(cycle_label, "Cycles");
     lv_obj_add_style(cycle_label, &setting_label_style, 0);
-    rollers.cycle_roller = setting_screen_create_roller(timer_section, 1, 4, 1, "");
+    rollers.cycle_roller = setting_screen_create_roller(timer_section, 1, 4, settings_cycle_count, "");
     lv_obj_set_grid_cell(rollers.cycle_roller, LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_START, 2, 1);
 
     // Attach the same handler to all rollers, passing the struct as user data

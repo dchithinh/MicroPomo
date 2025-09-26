@@ -108,8 +108,12 @@ void demo_screen_anim_transis(lv_obj_t *parent)
 
 void demo_load_img(lv_obj_t * parent)
 {
+  lv_obj_set_style_bg_color(parent, lv_color_hex(0x343247), 0);
+  lv_obj_set_style_bg_opa(parent, LV_OPA_COVER, 0);
   lv_obj_t* settings_icon_img = lv_img_create(parent);
-  lv_img_set_src(settings_icon_img, "S:/png/settings_icon.png");
+  lv_img_set_src(settings_icon_img, "S:/png/get_ready_64x64.png");
   lv_obj_set_align(settings_icon_img, LV_ALIGN_CENTER);
 
+  lv_obj_set_style_img_recolor(settings_icon_img, lv_color_hex(0xffffff), 0);
+  lv_obj_set_style_img_recolor_opa(settings_icon_img, LV_OPA_100, 0);
 }

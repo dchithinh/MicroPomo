@@ -137,10 +137,38 @@ bool pomodoro_is_pause_transition(void);
 void pomodoro_update_durations(uint32_t work_min, uint32_t short_break_min,
                                uint32_t long_break_min, uint8_t cycles_before_long);
 
+/**
+ * @brief Get the configured work time duration
+ * @return Work time duration in minutes
+ */
 int pomodoro_get_work_time(void);
+
+/**
+ * @brief Get the configured short break duration
+ * @return Short break duration in minutes
+ */
 int pomodoro_get_short_break(void);
+
+/**
+ * @brief Get the configured long break duration
+ * @return Long break duration in minutes
+ */
 int pomodoro_get_long_break(void);
+
+/**
+ * @brief Get the configured number of cycles before long break
+ * @return Number of cycles before long break
+ */
 int pomodoro_get_cycle_count(void);
+
+/**
+ * @brief Get the progress of current work session as a percentage
+ * @details Computes how far along the current work session is by comparing 
+ *          the remaining time against the total work duration
+ * @return Percentage of work session completed (0-100)
+ * @note Returns 0 if work duration is configured as 0
+ */
+uint8_t pomodoro_get_work_progress_in_percent(void);
 
 #ifdef __cplusplus
 }

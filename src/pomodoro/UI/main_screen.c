@@ -26,10 +26,18 @@ static lv_style_t progress_indic_style;
 static lv_style_t font_style;
 
 
+static lv_obj_t *icon_mode_cont;
+static lv_obj_t *ready_icon;
+static lv_obj_t *work_race_icon;
+static lv_obj_t *work_run_icon;
+static lv_obj_t *work_speed_icon;
+static lv_obj_t *objective_icon;
+
 static bool timer_running = false;
-static int remaining_sec = POMODORO_DEF_WORK_MIN * 60;
+// static int remaining_sec = POMODORO_DEF_WORK_MIN * 60;
 static int work_state_elapsed_sec = 0;
 static bool fullscreen_timer_active = false;
+static bool fullscreen_enable = false;
 
 /* Forward declarations */
 static void ui_main_screen_set_bg_by_theme(lv_obj_t *parent);
@@ -81,7 +89,7 @@ static void ui_main_screen_init_style_by_theme(void) {
         lv_style_set_arc_opa(&progress_main_style, LV_OPA_50);
 
         lv_style_set_width(&progress_indic_style, 10);
-        lv_style_set_arc_color(&progress_indic_style, lv_color_hex(0x00ff88));
+        lv_style_set_arc_color(&progress_indic_style, lv_color_hex(0x4A90E2));
 
         lv_style_set_text_font(&font_style, &lv_font_montserrat_18);
         lv_style_set_text_color(&font_style, lv_color_hex(0xffffff));
@@ -111,6 +119,31 @@ static void label_event_cb(lv_event_t * e)
     }
 }
 
+void ui_main_screen_update_mode_icon(PomodoroState_e curr_state) {
+
+    // Hide all icons initially
+    if (ready_icon)         lv_obj_add_flag(ready_icon, LV_OBJ_FLAG_HIDDEN);
+    if (work_race_icon)     lv_obj_add_flag(work_race_icon, LV_OBJ_FLAG_HIDDEN);
+    if (work_run_icon)      lv_obj_add_flag(work_run_icon, LV_OBJ_FLAG_HIDDEN);
+    if (work_speed_icon)    lv_obj_add_flag(work_speed_icon, LV_OBJ_FLAG_HIDDEN);
+    if (objective_icon)     lv_obj_add_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
+
+    switch (curr_state) {
+        case POMODORO_IDLE:
+            lv_obj_clear_flag(ready_icon, LV_OBJ_FLAG_HIDDEN);
+            break;
+        case POMODORO_WORK:
+            lv_obj_clear_flag(work_run_icon, LV_OBJ_FLAG_HIDDEN);
+            // lv_obj_clear_flag(work_race_icon, LV_OBJ_FLAG_HIDDEN);
+            // lv_obj_clear_flag(work_speed_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
+
+            break;
+        default:
+            // Optionally hide all
+            break;
+    }
+}
 
 void ui_main_screen(lv_obj_t *parent)
 {
@@ -149,6 +182,7 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_style_pad_row(main_cont, 8, 0);   // spacing between rows
 
     /* Mode */
+#if 1 //Will be removed/replaced
     label_mode = lv_label_create(main_cont);
     lv_label_set_text(label_mode, "Focus");
     lv_obj_set_grid_cell(label_mode,
@@ -157,6 +191,48 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_add_style(label_mode, &font_style, 0);
     lv_obj_set_style_text_font(label_mode, &lv_font_montserrat_36, 0);
     lv_obj_set_style_text_color(label_mode, lv_color_hex(0x00ff88), 0);
+    lv_obj_add_flag(label_mode, LV_OBJ_FLAG_HIDDEN);
+#endif
+
+    static lv_style_t icon_style;
+    lv_style_init(&icon_style);
+    lv_style_set_img_recolor(&icon_style, lv_color_hex(0x000000));
+    lv_style_set_img_recolor_opa(&icon_style, LV_OPA_100);
+
+    icon_mode_cont = lv_obj_create(main_cont);
+    lv_obj_remove_style_all(icon_mode_cont);
+    lv_obj_set_size(icon_mode_cont, LV_PCT(80), LV_PCT(100));
+    lv_obj_set_grid_cell(icon_mode_cont, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_obj_set_flex_flow(icon_mode_cont, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(icon_mode_cont, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    if (ready_icon)         lv_obj_del(ready_icon);
+    if (work_speed_icon)    lv_obj_del(work_speed_icon);
+    if (work_run_icon)      lv_obj_del(work_run_icon);
+    if (work_race_icon)     lv_obj_del(work_race_icon);
+    if (objective_icon)     lv_obj_del(objective_icon);
+
+    ready_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(ready_icon, &icon_style, 0);
+    lv_img_set_src(ready_icon, "S:/png/get_ready_64x64.png");
+
+    work_run_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(work_run_icon, &icon_style, 0);
+    lv_img_set_src(work_run_icon, "S:/png/run.png");
+    
+    work_race_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(work_race_icon, &icon_style, 0);
+    lv_img_set_src(work_race_icon, "S:/png/race.png");
+
+    work_speed_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(work_speed_icon, &icon_style, 0);
+    lv_img_set_src(work_speed_icon, "S:/png/speed.png");
+
+    objective_icon = lv_img_create(icon_mode_cont);
+    lv_obj_add_style(objective_icon, &icon_style, 0);
+    lv_img_set_src(objective_icon, "S:/png/objective.png");
+
+    ui_main_screen_update_mode_icon(POMODORO_IDLE);
 
     LV_IMG_DECLARE(setting_icon)
     lv_obj_t* settings_icon_img = lv_img_create(main_cont);
@@ -182,8 +258,8 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_remove_style(progress, NULL, LV_PART_KNOB);   // Remove the knob
     lv_obj_clear_flag(progress, LV_OBJ_FLAG_CLICKABLE);  // Make it non-interactive
 
-    lv_arc_set_range(progress, 0, remaining_sec);
-    lv_arc_set_value(progress, remaining_sec);
+    lv_arc_set_range(progress, 0, pomodoro_get_remaining_sec());
+    lv_arc_set_value(progress, pomodoro_get_remaining_sec());
     lv_arc_set_bg_angles(progress, 0, 360);
 
     // Set rotation to start from top
@@ -196,7 +272,7 @@ void ui_main_screen(lv_obj_t *parent)
     /* Timer label - positioned in center of circle */
     label_timer = lv_label_create(progress);  // Create as child of arc for centering
     lv_label_set_text(label_timer, "25:00");
-    lv_obj_set_style_text_color(label_timer, lv_color_hex(0x00ff88), 0);
+    lv_obj_set_style_text_color(label_timer, lv_color_hex(0x4A90E2), 0);
     lv_obj_set_style_text_font(label_timer, &lv_font_montserrat_28, 0);
     lv_obj_center(label_timer);  // Center within the arc
 
@@ -231,7 +307,7 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_size(btn_reset, 90, LV_SIZE_CONTENT);
     lv_obj_add_event_cb(btn_reset, reset_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_reset = lv_label_create(btn_reset);
-    lv_label_set_text(label_reset, "Reset");
+    lv_label_set_text(label_reset, "Stop");
     lv_obj_center(label_reset);
 
     /* Cycle status */
@@ -256,7 +332,7 @@ void ui_main_screen(lv_obj_t *parent)
 
 
     /* Update initial timer display */
-    update_timer_label(remaining_sec * 1000);
+    update_timer_label(pomodoro_get_remaining_sec() * 1000);
 
     // Initialize to IDLE state
     pomodoro_state_changed(POMODORO_IDLE);
@@ -303,6 +379,7 @@ static void ui_update_state_text(PomodoroState_e state)
             lv_label_set_text(label_mode, "Ready");
             lv_label_set_text(lv_obj_get_child(btn_start, 0), "Start");
             lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
+            update_timer_label(timer_get_remaining());
             break;
             
         case POMODORO_WORK:
@@ -346,18 +423,17 @@ static void ui_update_cycle_counter(void)
 
 static void update_timer_and_progress(PomodoroState_e state)
 {
-    remaining_sec = pomodoro_get_remaining_sec();
-    // Only update the arc range for new session states, NOT for resume transitions
     if (!pomodoro_is_resume_transition() && !pomodoro_is_pause_transition()) {
-        lv_arc_set_range(progress, 0, remaining_sec / 1000);
+        lv_arc_set_range(progress, 0, pomodoro_get_remaining_sec());
     }
 
     // Update remaining time and progress bar
-    update_timer_label(remaining_sec);
+    update_timer_label(pomodoro_get_remaining_sec() * 1000);
 }
 
 static void pomodoro_state_changed(PomodoroState_e state)
 {
+    ui_main_screen_update_mode_icon(state);
     ui_update_ctrl_button(state);
     ui_update_state_text(state);
 
@@ -400,21 +476,43 @@ static void reset_event_cb(lv_event_t *e)
 }
 
 static void ui_tick_cb(uint32_t remaining) {
-    LV_LOG_USER("[UI] Remaining: %02lu:%02lu\n", remaining / 60, remaining % 60);
     update_timer_label(remaining);
 
     PomodoroState_e state = pomodoro_get_state();
     if (state == POMODORO_WORK) {
-        work_state_elapsed_sec++;
-        if (!fullscreen_timer_active && work_state_elapsed_sec >= POMO_MOVE_TO_FULLSCREEN_SEC) {
-            // Show fullscreen overlay after 10 seconds
-            show_fullscreen_timer(main_cont);
-            fullscreen_timer_active = true;
+        if (fullscreen_enable) {
+            work_state_elapsed_sec++;
+            if (!fullscreen_timer_active && work_state_elapsed_sec >= POMO_MOVE_TO_FULLSCREEN_SEC) {
+                // Show fullscreen overlay after 10 seconds
+                show_fullscreen_timer(main_cont);
+                fullscreen_timer_active = true;
+            }
+            if (fullscreen_timer_active) {
+                update_fullscreen_timer(remaining);
+            }
         }
-        if (fullscreen_timer_active) {
-            update_fullscreen_timer(remaining);
+
+        uint8_t percent = pomodoro_get_work_progress_in_percent();
+        if (percent > 50 && percent < 80) {
+            lv_obj_clear_flag(work_race_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_text_color(label_timer, lv_color_hex(0x9B59B6), 0);
+            lv_obj_set_style_arc_color(progress, lv_color_hex(0x9B59B6), LV_PART_INDICATOR);
         }
-    } else {
+        else if (percent >= 80) {
+            lv_obj_clear_flag(work_speed_icon, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_text_color(label_timer, lv_color_hex(0xE74C3C), 0);
+            lv_obj_set_style_arc_color(progress, lv_color_hex(0xE74C3C), LV_PART_INDICATOR);
+        }
+        else {
+            lv_obj_set_style_text_color(label_timer, lv_color_hex(0x4A90E2), 0);
+            lv_obj_set_style_arc_color(progress, lv_color_hex(0x4A90E2), LV_PART_INDICATOR);
+        }
+    }
+    else if (state == POMODORO_SHORT_BREAK || state == POMODORO_LONG_BREAK) {
+        lv_obj_set_style_text_color(label_timer, lv_color_hex(0x4A90E2), 0);
+        lv_obj_set_style_arc_color(progress, lv_color_hex(0x4A90E2), LV_PART_INDICATOR);
+    }
+    else {
         // Not in WORK state: reset elapsed time and hide overlay if shown
         work_state_elapsed_sec = 0;
         if (fullscreen_timer_active) {
