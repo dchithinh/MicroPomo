@@ -202,19 +202,6 @@ void show_settings_screen(lv_obj_t *parent)
     lv_obj_add_event_cb(rollers.cycle_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
 
 
-    lv_obj_t *quote_section = lv_obj_create(settings_screen);
-    lv_obj_remove_style_all(quote_section);
-    lv_obj_add_style(quote_section, &setting_section_style, 0);
-    lv_obj_align_to(quote_section, timer_section, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
-
-    lv_obj_t *quote_title = lv_label_create(quote_section);
-    lv_label_set_text(quote_title, "QUOTE");
-    lv_obj_add_style(quote_title, &setting_section_label_style, 0);
-    // lv_obj_align_to(quote_title, timer_title, LV_ALIGN_OUT_BOTTOM_MID, 50, 50);
-    
-
-
-
     lv_obj_t *btn_save = lv_btn_create(settings_screen);
     lv_obj_t* label_save = lv_label_create(btn_save);
     lv_label_set_text(label_save, "Save");

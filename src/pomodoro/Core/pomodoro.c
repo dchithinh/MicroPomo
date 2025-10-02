@@ -115,6 +115,7 @@ void pomodoro_resume(void) {
 void pomodoro_reset(void) {
     change_state(POMODORO_IDLE, 0);
     pomo_core_cycle_count = 0;
+    pomo_core_remaining_ms = pomo_core_work_duration_ms;
     timer_stop();
 }
 

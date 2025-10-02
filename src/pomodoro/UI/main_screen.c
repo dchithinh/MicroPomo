@@ -20,10 +20,12 @@ static lv_obj_t *label_pause;
 
 static lv_obj_t *btn_start;
 static lv_obj_t *btn_reset;
+static lv_obj_t *btn_setting;
 
 static lv_style_t progress_main_style;
 static lv_style_t progress_indic_style;
 static lv_style_t font_style;
+static lv_style_t btn_style;
 
 
 static lv_obj_t *icon_mode_cont;
@@ -84,17 +86,30 @@ static void ui_main_screen_init_style_by_theme(void) {
     lv_style_init(&progress_main_style);
     lv_style_init(&progress_indic_style);
     lv_style_init(&font_style);
+    lv_style_init(&btn_style);
 
     if (ui_get_theme() == POMO_DARK_THEME) {
         lv_style_set_width(&progress_main_style, 10);
-        lv_style_set_arc_color(&progress_main_style, lv_color_hex(0x000000));
-        lv_style_set_arc_opa(&progress_main_style, LV_OPA_50);
+        lv_style_set_arc_color(&progress_main_style, lv_color_hex(0x1E1E2A));
+        // lv_style_set_arc_opa(&progress_main_style, LV_OPA_50);
 
         lv_style_set_width(&progress_indic_style, 10);
         lv_style_set_arc_color(&progress_indic_style, lv_color_hex(0x4A90E2));
 
         lv_style_set_text_font(&font_style, &lv_font_montserrat_18);
         lv_style_set_text_color(&font_style, lv_color_hex(0xffffff));
+
+        lv_style_set_bg_color(&btn_style, lv_color_hex(0x2563EB));
+        lv_style_set_bg_grad_color(&btn_style, lv_color_hex(0x1E40AF));
+        lv_style_set_bg_grad_dir(&btn_style, LV_GRAD_DIR_VER);
+        lv_style_set_text_color(&btn_style, lv_color_hex(0xEAEAEA));
+
+        lv_style_set_shadow_width(&btn_style, 8);
+        lv_style_set_shadow_color(&btn_style, lv_color_hex(0x1A1A26));
+        lv_style_set_shadow_ofs_y(&btn_style, 4);
+
+        // Rounding
+        lv_style_set_radius(&btn_style, 8);
     }
     else {
         //TODO: adjust colors for light theme
@@ -231,51 +246,62 @@ void ui_main_screen(lv_obj_t *parent)
     if (short_break_icon)   lv_obj_del(short_break_icon);
     if (long_break_icon)    lv_obj_del(long_break_icon);
 
+    LV_IMG_DECLARE(get_ready_64x64);
     ready_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(ready_icon, &icon_style, 0);
-    lv_img_set_src(ready_icon, "S:/png/get_ready_64x64.png");
+    // lv_img_set_src(ready_icon, "S:/png/get_ready_64x64.png");
+    lv_img_set_src(ready_icon, &get_ready_64x64);
+    lv_obj_set_style_img_recolor(ready_icon, lv_color_hex(0xBBBBBB), 0);
 
+    LV_IMG_DECLARE(run);
     work_run_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(work_run_icon, &icon_style, 0);
-    lv_img_set_src(work_run_icon, "S:/png/run.png");
+    // lv_img_set_src(work_run_icon, "S:/png/run.png");
+    lv_img_set_src(work_run_icon, &run);
+    lv_obj_set_style_img_recolor(work_run_icon, lv_color_hex(0xBBBBBB), 0);
     
+    LV_IMG_DECLARE(race);
     work_race_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(work_race_icon, &icon_style, 0);
-    lv_img_set_src(work_race_icon, "S:/png/race.png");
+    // lv_img_set_src(work_race_icon, "S:/png/race.png");
+    lv_img_set_src(work_race_icon, &race);
+    lv_obj_set_style_img_recolor(work_race_icon, lv_color_hex(0xBBBBBB), 0);
 
+    LV_IMG_DECLARE(speed);
     work_speed_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(work_speed_icon, &icon_style, 0);
-    lv_img_set_src(work_speed_icon, "S:/png/speed.png");
+    // lv_img_set_src(work_speed_icon, "S:/png/speed.png");
+    lv_img_set_src(work_speed_icon, &speed);
+    lv_obj_set_style_img_recolor(work_speed_icon, lv_color_hex(0xBBBBBB), 0);
 
+    LV_IMG_DECLARE(objective);
     objective_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(objective_icon, &icon_style, 0);
-    lv_img_set_src(objective_icon, "S:/png/objective.png");
+    // lv_img_set_src(objective_icon, "S:/png/objective.png");
+    lv_img_set_src(objective_icon, &objective);
+    lv_obj_set_style_img_recolor(objective_icon, lv_color_hex(0xBBBBBB), 0);
 
+    LV_IMG_DECLARE(short_break);
     short_break_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(short_break_icon, &icon_style, 0);
-    lv_img_set_src(short_break_icon, "S:/png/short_break.png");
+    // lv_img_set_src(short_break_icon, "S:/png/short_break.png");
+    lv_img_set_src(short_break_icon, &short_break);
+    lv_obj_set_style_img_recolor(short_break_icon, lv_color_hex(0xBBBBBB), 0);
 
+    LV_IMG_DECLARE(long_break);
     long_break_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(long_break_icon, &icon_style, 0);
-    lv_img_set_src(long_break_icon, "S:/png/long_break.png");
+    // lv_img_set_src(long_break_icon, "S:/png/long_break.png");
+    lv_img_set_src(long_break_icon, &long_break);
+    lv_obj_set_style_img_recolor(long_break_icon, lv_color_hex(0xBBBBBB), 0);
 
     ui_main_screen_update_mode_icon(POMODORO_IDLE);
-
-    LV_IMG_DECLARE(setting_icon)
-    lv_obj_t* settings_icon_img = lv_img_create(main_cont);
-    lv_img_set_src(settings_icon_img, &setting_icon);
-    lv_obj_set_grid_cell(settings_icon_img, LV_GRID_ALIGN_END, 0, 1, LV_GRID_ALIGN_START, 0, 1);
-    lv_obj_set_style_margin_right(settings_icon_img, 10, 0);
-    lv_obj_set_style_margin_top(settings_icon_img, 10, 0);
-    lv_obj_add_flag(settings_icon_img, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(settings_icon_img, setting_event_cb, LV_EVENT_CLICKED, NULL);
 
     /* Timer row */
     lv_obj_t *timer_cont = lv_obj_create(main_cont);
     lv_obj_remove_style_all(timer_cont);
     lv_obj_clear_flag(timer_cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_grid_cell(timer_cont, LV_GRID_ALIGN_STRETCH, 0, 1, LV_GRID_ALIGN_STRETCH, 1, 1);
-
 
     /* Circular progress indicator */
     progress = lv_arc_create(timer_cont);
@@ -308,7 +334,6 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_add_style(label_pause, &font_style, 0);
     lv_obj_align_to(label_pause, label_timer, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
     lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN);
-    
 
     /* Buttons */
     lv_obj_t *btn_row = lv_obj_create(main_cont);
@@ -324,18 +349,28 @@ void ui_main_screen(lv_obj_t *parent)
                          LV_GRID_ALIGN_STRETCH, 2, 1);
 
     btn_start = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_start, 90, LV_SIZE_CONTENT);
+    lv_obj_set_size(btn_start, LV_PCT(15), LV_SIZE_CONTENT);
+    lv_obj_add_style(btn_start, &btn_style, 0);
     lv_obj_add_event_cb(btn_start, start_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_start = lv_label_create(btn_start);
     lv_label_set_text(label_start, "Start");
     lv_obj_center(label_start);
 
     btn_reset = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_reset, 90, LV_SIZE_CONTENT);
+    lv_obj_set_size(btn_reset, LV_PCT(15), LV_SIZE_CONTENT);
+    lv_obj_add_style(btn_reset, &btn_style, 0);
     lv_obj_add_event_cb(btn_reset, reset_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_reset = lv_label_create(btn_reset);
     lv_label_set_text(label_reset, "Stop");
     lv_obj_center(label_reset);
+
+    btn_setting = lv_btn_create(btn_row);
+    lv_obj_set_size(btn_setting, LV_PCT(15), LV_SIZE_CONTENT);
+    lv_obj_add_style(btn_setting, &btn_style, 0);
+    lv_obj_add_event_cb(btn_setting, setting_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t *label_setting = lv_label_create(btn_setting);
+    lv_label_set_text(label_setting, "Settings");
+    lv_obj_center(label_setting);
 
     /* Cycle status */
     label_cycle = lv_label_create(main_cont);
@@ -343,7 +378,6 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_grid_cell(label_cycle,
                          LV_GRID_ALIGN_CENTER, 0, 1,
                          LV_GRID_ALIGN_CENTER, 3, 1);
-
     
     lv_obj_t *label_quote = lv_label_create(main_cont);
     lv_label_set_text(label_quote, "Focus on being productive instead of busy");
@@ -387,12 +421,14 @@ static void ui_update_ctrl_button(PomodoroState_e state)
 
         lv_label_set_text(lv_obj_get_child(btn_start, 0), "Start");
         lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
+        lv_obj_clear_flag(btn_setting, LV_OBJ_FLAG_HIDDEN); // Show Settings when idle
     }
     else if (state == POMODORO_WORK) {
         lv_label_set_text(lv_obj_get_child(btn_start, 0), "Pause");
         lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
         lv_obj_set_align(btn_reset, LV_ALIGN_RIGHT_MID);  // Align Reset to right
         lv_obj_clear_flag(btn_reset, LV_OBJ_FLAG_HIDDEN); // Show Reset
+        lv_obj_add_flag(btn_setting, LV_OBJ_FLAG_HIDDEN); // Hide Settings when running
     }
     else if (state == POMODORO_PAUSED_WORK ||
             state == POMODORO_PAUSED_BREAK) {
