@@ -96,7 +96,7 @@ static void ui_main_screen_init_style_by_theme(void) {
         lv_style_set_width(&progress_indic_style, 10);
         lv_style_set_arc_color(&progress_indic_style, lv_color_hex(0x4A90E2));
 
-        lv_style_set_text_font(&font_style, &lv_font_montserrat_18);
+        lv_style_set_text_font(&font_style, &lv_font_montserrat_12);
         lv_style_set_text_color(&font_style, lv_color_hex(0xffffff));
 
         lv_style_set_bg_color(&btn_style, lv_color_hex(0x2563EB));
@@ -502,6 +502,11 @@ static void update_timer_and_progress(PomodoroState_e state)
 
     // Update remaining time and progress bar
     update_timer_label(pomodoro_get_remaining_sec() * 1000);
+
+    if (state == POMODORO_IDLE) {
+        lv_obj_set_style_text_color(label_timer, lv_color_hex(0x4A90E2), 0);
+        lv_obj_set_style_arc_color(progress, lv_color_hex(0x4A90E2), LV_PART_INDICATOR);
+    }
 }
 
 static void pomodoro_state_changed(PomodoroState_e state)
