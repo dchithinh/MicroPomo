@@ -35,7 +35,7 @@ static lv_obj_t *work_run_icon;
 static lv_obj_t *work_speed_icon;
 static lv_obj_t *short_break_icon;
 static lv_obj_t *long_break_icon;
-static lv_obj_t *objective_icon;
+// static lv_obj_t *objective_icon;
 
 static bool timer_running = false;
 // static int remaining_sec = POMODORO_DEF_WORK_MIN * 60;
@@ -143,7 +143,7 @@ void ui_main_screen_update_mode_icon(PomodoroState_e curr_state) {
     if (work_race_icon)     lv_obj_add_flag(work_race_icon, LV_OBJ_FLAG_HIDDEN);
     if (work_run_icon)      lv_obj_add_flag(work_run_icon, LV_OBJ_FLAG_HIDDEN);
     if (work_speed_icon)    lv_obj_add_flag(work_speed_icon, LV_OBJ_FLAG_HIDDEN);
-    if (objective_icon)     lv_obj_add_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
+    // if (objective_icon)     lv_obj_add_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
     if (short_break_icon)   lv_obj_add_flag(short_break_icon, LV_OBJ_FLAG_HIDDEN);
     if (long_break_icon)    lv_obj_add_flag(long_break_icon, LV_OBJ_FLAG_HIDDEN);
 
@@ -154,7 +154,7 @@ void ui_main_screen_update_mode_icon(PomodoroState_e curr_state) {
         case POMODORO_WORK:
         case POMODORO_PAUSED_WORK:
             lv_obj_clear_flag(work_run_icon, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
+            // lv_obj_clear_flag(objective_icon, LV_OBJ_FLAG_HIDDEN);
             break;
         case POMODORO_SHORT_BREAK:
             lv_obj_clear_flag(short_break_icon, LV_OBJ_FLAG_HIDDEN);
@@ -242,7 +242,7 @@ void ui_main_screen(lv_obj_t *parent)
     if (work_speed_icon)    lv_obj_del(work_speed_icon);
     if (work_run_icon)      lv_obj_del(work_run_icon);
     if (work_race_icon)     lv_obj_del(work_race_icon);
-    if (objective_icon)     lv_obj_del(objective_icon);
+    // if (objective_icon)     lv_obj_del(objective_icon);
     if (short_break_icon)   lv_obj_del(short_break_icon);
     if (long_break_icon)    lv_obj_del(long_break_icon);
 
@@ -274,12 +274,14 @@ void ui_main_screen(lv_obj_t *parent)
     lv_img_set_src(work_speed_icon, &speed);
     lv_obj_set_style_img_recolor(work_speed_icon, lv_color_hex(0xBBBBBB), 0);
 
+    #if 0
     LV_IMG_DECLARE(objective);
     objective_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(objective_icon, &icon_style, 0);
-    // lv_img_set_src(objective_icon, "S:/png/objective.png");
+    lv_img_set_src(objective_icon, "S:/png/objective.png");
     lv_img_set_src(objective_icon, &objective);
     lv_obj_set_style_img_recolor(objective_icon, lv_color_hex(0xBBBBBB), 0);
+    #endif
 
     LV_IMG_DECLARE(short_break);
     short_break_icon = lv_img_create(icon_mode_cont);
