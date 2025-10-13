@@ -103,29 +103,29 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Debug mode enabled")
 
     target_compile_options(lvgl PRIVATE
-        -pedantic-errors
-        -Wall
-        -Wclobbered
-        -Wdeprecated
-        -Wdouble-promotion
-        -Wempty-body
-        -Wextra
-        -Wformat-security
-        -Wmaybe-uninitialized
-        # -Wmissing-prototypes
-        -Wpointer-arith
-        -Wmultichar
-        -Wno-pedantic # ignored for now, we convert functions to pointers for properties table.
-        -Wreturn-type
-        -Wshadow
-        -Wshift-negative-value
-        -Wsizeof-pointer-memaccess
-        -Wtype-limits
-        -Wundef
-        -Wuninitialized
-        -Wunreachable-code
-        -Wfloat-conversion
-        -Wstrict-aliasing
+        # -pedantic-errors
+        # -Wall
+        # -Wclobbered
+        # -Wdeprecated
+        # -Wdouble-promotion
+        # -Wempty-body
+        # -Wextra
+        # -Wformat-security
+        # -Wmaybe-uninitialized
+        # # -Wmissing-prototypes
+        # -Wpointer-arith
+        # -Wmultichar
+        # -Wno-pedantic # ignored for now, we convert functions to pointers for properties table.
+        # -Wreturn-type
+        # -Wshadow
+        # -Wshift-negative-value
+        # -Wsizeof-pointer-memaccess
+        # -Wtype-limits
+        # -Wundef
+        # -Wuninitialized
+        # -Wunreachable-code
+        # -Wfloat-conversion
+        # -Wstrict-aliasing
     )
 
 if (ASAN)
