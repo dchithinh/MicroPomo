@@ -1,0 +1,78 @@
+<mxfile host="Electron" modified="2025-10-13T01:52:00.768Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.1 Chrome/112.0.5615.204 Electron/24.6.1 Safari/537.36" etag="KW-26WP0JlmrpVGO8ze7" version="21.6.1" type="device">
+  <diagram name="Page-1" id="Xx00qamNzVN6rEItkBle">
+    <mxGraphModel dx="2049" dy="1206" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="4681" pageHeight="3300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-20" value="" style="group;rounded=0;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="176" y="41" width="376" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-15" value="EVENTS" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;labelBorderColor=none;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-20">
+          <mxGeometry width="376" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-17" value="User Inputs&lt;br&gt;(Start/Stop, Settings)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-20">
+          <mxGeometry x="39" y="44" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-18" value="Timer Tick" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-20">
+          <mxGeometry x="223" y="44" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-57" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="986" y="38" width="533" height="712" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-52" value="" style="group;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="176" y="280" width="376" height="242" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-26" value="POMODORO CORE" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;labelBorderColor=none;fillColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-52">
+          <mxGeometry width="376" height="242" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-27" value="State Machine" style="rounded=1;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-52">
+          <mxGeometry x="199" y="159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" edge="1" parent="xbvzOpPyTBCArNb1Xpvi-52" source="xbvzOpPyTBCArNb1Xpvi-28" target="xbvzOpPyTBCArNb1Xpvi-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-28" value="Timer Logic" style="rounded=1;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-52">
+          <mxGeometry x="32" y="57" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" edge="1" parent="xbvzOpPyTBCArNb1Xpvi-52" source="xbvzOpPyTBCArNb1Xpvi-29" target="xbvzOpPyTBCArNb1Xpvi-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-29" value="Events Dispatcher" style="rounded=1;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-52">
+          <mxGeometry x="199" y="54" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-44" value="Database&lt;br&gt;(User settings,&lt;br&gt;States-related)" style="rounded=1;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="xbvzOpPyTBCArNb1Xpvi-52">
+          <mxGeometry x="36" y="159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" edge="1" parent="xbvzOpPyTBCArNb1Xpvi-52" source="xbvzOpPyTBCArNb1Xpvi-27" target="xbvzOpPyTBCArNb1Xpvi-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-1" value="IDLE" style="rounded=1;whiteSpace=wrap;html=1;container=0;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="61" width="98" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-2" value="WORK" style="rounded=1;whiteSpace=wrap;html=1;container=0;" vertex="1" parent="1">
+          <mxGeometry x="1185" y="188" width="98" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-3" value="SHORT BREAK" style="rounded=1;whiteSpace=wrap;html=1;container=0;" vertex="1" parent="1">
+          <mxGeometry x="1185" y="272" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-4" value="LONG BREAK" style="rounded=1;whiteSpace=wrap;html=1;container=0;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="363" width="120" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-5" value="PAUSED BREAK" style="rounded=1;whiteSpace=wrap;html=1;container=0;" vertex="1" parent="1">
+          <mxGeometry x="1194" y="610" width="109" height="31" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-6" value="PAUSED WORK" style="rounded=1;whiteSpace=wrap;html=1;align=center;container=0;" vertex="1" parent="1">
+          <mxGeometry x="1183" y="489" width="112" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.48;entryY=-0.005;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="xbvzOpPyTBCArNb1Xpvi-15" target="xbvzOpPyTBCArNb1Xpvi-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="xbvzOpPyTBCArNb1Xpvi-56" value="Events" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="xbvzOpPyTBCArNb1Xpvi-55">
+          <mxGeometry x="-0.294" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
