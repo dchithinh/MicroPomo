@@ -425,7 +425,9 @@ static void ui_update_ctrl_button(PomodoroState_e state)
         lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
         lv_obj_clear_flag(btn_setting, LV_OBJ_FLAG_HIDDEN); // Show Settings when idle
     }
-    else if (state == POMODORO_WORK) {
+    else if (state == POMODORO_WORK ||
+                state == POMODORO_SHORT_BREAK ||
+                state == POMODORO_LONG_BREAK) {
         lv_label_set_text(lv_obj_get_child(btn_start, 0), "Pause");
         lv_obj_add_flag(label_pause, LV_OBJ_FLAG_HIDDEN); // Hide "Paused" label
         lv_obj_set_align(btn_reset, LV_ALIGN_RIGHT_MID);  // Align Reset to right

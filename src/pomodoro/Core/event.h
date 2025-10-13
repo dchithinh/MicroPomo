@@ -28,10 +28,10 @@ typedef enum {
  * @brief Settings data structure (used with EVENT_SETTINGS).
  */
 typedef struct {
-    uint32_t work_min;           /**< Work duration in minutes */
-    uint32_t short_break_min;    /**< Short break duration in minutes */
-    uint32_t long_break_min;     /**< Long break duration in minutes */
-    uint8_t cycles_before_long;  /**< Number of cycles before long break */
+    int work_min;           /**< Work duration in minutes */
+    int short_break_min;    /**< Short break duration in minutes */
+    int long_break_min;     /**< Long break duration in minutes */
+    int cycles_before_long;  /**< Number of cycles before long break */
 } PomodoroSettings_t;
 
 /**
