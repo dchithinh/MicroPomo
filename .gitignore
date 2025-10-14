@@ -1,6 +1,7 @@
 # Ignore build folder
 build/
 bin/
+vcpkg/
 
 
 # Ignore all dot folders, with below exceptions

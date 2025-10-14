@@ -35,6 +35,7 @@ Pomodoro App
 ```
 
 ## Architecture Overview
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Application Layer                        │
 │                          (main_screen.c)                        │
@@ -67,8 +68,11 @@ Pomodoro App
 │                    Hardware Abstraction                         │
 │            HAL_GetTick() / SDL_GetTicks() / etc.                │
 └─────────────────────────────────────────────────────────────────┘
+```
 
 ## State Transition Flow
+
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    POMODORO STATE MACHINE                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -94,3 +98,4 @@ Pomodoro App
 │     └─► BREAK → WORK                                            │
 │         └─► timer_start() with new duration                     │
 └─────────────────────────────────────────────────────────────────┘
+```
