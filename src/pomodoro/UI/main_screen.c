@@ -38,7 +38,6 @@ static lv_obj_t *long_break_icon;
 // static lv_obj_t *objective_icon;
 
 static bool timer_running = false;
-// static int remaining_sec = POMODORO_DEF_WORK_MIN * 60;
 static int work_state_elapsed_sec = 0;
 static bool fullscreen_timer_active = false;
 static bool fullscreen_enable = false;
@@ -96,9 +95,13 @@ static void ui_main_screen_init_style_by_theme(void) {
         lv_style_set_width(&progress_indic_style, 10);
         lv_style_set_arc_color(&progress_indic_style, lv_color_hex(0x4A90E2));
 
+        #ifdef SCREEN_SIZE_240x320
         lv_style_set_text_font(&font_style, &lv_font_montserrat_12);
         lv_style_set_text_color(&font_style, lv_color_hex(0xffffff));
-
+        #else
+        lv_style_set_text_font(&font_style, &lv_font_montserrat_14);
+        lv_style_set_text_color(&font_style, lv_color_hex(0xffffff));
+        #endif
         lv_style_set_bg_color(&btn_style, lv_color_hex(0x2563EB));
         lv_style_set_bg_grad_color(&btn_style, lv_color_hex(0x1E40AF));
         lv_style_set_bg_grad_dir(&btn_style, LV_GRAD_DIR_VER);
@@ -230,6 +233,11 @@ void ui_main_screen(lv_obj_t *parent)
     lv_style_set_img_recolor(&icon_style, lv_color_hex(0x000000));
     lv_style_set_img_recolor_opa(&icon_style, LV_OPA_100);
 
+    int img_zoom = 256;
+    #ifdef SCREEN_SIZE_240x320
+    img_zoom = 256 * 0.7;
+    #endif
+
     icon_mode_cont = lv_obj_create(main_cont);
     lv_obj_remove_style_all(icon_mode_cont);
     lv_obj_set_size(icon_mode_cont, LV_PCT(80), LV_PCT(100));
@@ -252,6 +260,7 @@ void ui_main_screen(lv_obj_t *parent)
     // lv_img_set_src(ready_icon, "S:/png/get_ready_64x64.png");
     lv_img_set_src(ready_icon, &get_ready_64x64);
     lv_obj_set_style_img_recolor(ready_icon, lv_color_hex(0xBBBBBB), 0);
+    lv_img_set_zoom(ready_icon, img_zoom);
 
     LV_IMG_DECLARE(run);
     work_run_icon = lv_img_create(icon_mode_cont);
@@ -259,13 +268,15 @@ void ui_main_screen(lv_obj_t *parent)
     // lv_img_set_src(work_run_icon, "S:/png/run.png");
     lv_img_set_src(work_run_icon, &run);
     lv_obj_set_style_img_recolor(work_run_icon, lv_color_hex(0xBBBBBB), 0);
-    
+    lv_img_set_zoom(work_run_icon, img_zoom);
+
     LV_IMG_DECLARE(race);
     work_race_icon = lv_img_create(icon_mode_cont);
     lv_obj_add_style(work_race_icon, &icon_style, 0);
     // lv_img_set_src(work_race_icon, "S:/png/race.png");
     lv_img_set_src(work_race_icon, &race);
     lv_obj_set_style_img_recolor(work_race_icon, lv_color_hex(0xBBBBBB), 0);
+    lv_img_set_zoom(work_race_icon, img_zoom);
 
     LV_IMG_DECLARE(speed);
     work_speed_icon = lv_img_create(icon_mode_cont);
@@ -273,6 +284,7 @@ void ui_main_screen(lv_obj_t *parent)
     // lv_img_set_src(work_speed_icon, "S:/png/speed.png");
     lv_img_set_src(work_speed_icon, &speed);
     lv_obj_set_style_img_recolor(work_speed_icon, lv_color_hex(0xBBBBBB), 0);
+    lv_img_set_zoom(work_speed_icon, img_zoom);
 
     #if 0
     LV_IMG_DECLARE(objective);
@@ -289,6 +301,7 @@ void ui_main_screen(lv_obj_t *parent)
     // lv_img_set_src(short_break_icon, "S:/png/short_break.png");
     lv_img_set_src(short_break_icon, &short_break);
     lv_obj_set_style_img_recolor(short_break_icon, lv_color_hex(0xBBBBBB), 0);
+    lv_img_set_zoom(short_break_icon, img_zoom);
 
     LV_IMG_DECLARE(long_break);
     long_break_icon = lv_img_create(icon_mode_cont);
@@ -296,6 +309,7 @@ void ui_main_screen(lv_obj_t *parent)
     // lv_img_set_src(long_break_icon, "S:/png/long_break.png");
     lv_img_set_src(long_break_icon, &long_break);
     lv_obj_set_style_img_recolor(long_break_icon, lv_color_hex(0xBBBBBB), 0);
+    lv_img_set_zoom(long_break_icon, img_zoom);
 
     ui_main_screen_update_mode_icon(POMODORO_IDLE);
 
@@ -307,7 +321,16 @@ void ui_main_screen(lv_obj_t *parent)
 
     /* Circular progress indicator */
     progress = lv_arc_create(timer_cont);
-    lv_obj_set_size(progress, 200, 200); //TODO: adjust size based on screen
+    int32_t progress_w = 200;
+    int32_t progress_h = 200;
+    #ifdef SCREEN_SIZE_240x320
+    progress_w = 130;
+    progress_h = 130;
+    #else
+    progress_w = 200;
+    progress_h = 200;
+    #endif
+    lv_obj_set_size(progress, progress_w, progress_h);
     lv_obj_center(progress);
 
     lv_obj_remove_style(progress, NULL, LV_PART_KNOB);   // Remove the knob
@@ -351,27 +374,37 @@ void ui_main_screen(lv_obj_t *parent)
                          LV_GRID_ALIGN_STRETCH, 2, 1);
 
     btn_start = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_start, LV_PCT(15), LV_SIZE_CONTENT);
+    int16_t btn_w = 15;
+    int16_t btn_h = 80;
+    #ifdef SCREEN_SIZE_240x320
+    btn_w = 30;
+    btn_h = 80;
+    #endif
+
+    lv_obj_set_size(btn_start, LV_PCT(btn_w), LV_PCT(btn_h));
     lv_obj_add_style(btn_start, &btn_style, 0);
     lv_obj_add_event_cb(btn_start, start_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_start = lv_label_create(btn_start);
     lv_label_set_text(label_start, "Start");
+    lv_obj_add_style(label_start, &font_style, 0);
     lv_obj_center(label_start);
 
     btn_reset = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_reset, LV_PCT(15), LV_SIZE_CONTENT);
+    lv_obj_set_size(btn_reset, LV_PCT(btn_w), LV_PCT(btn_h));
     lv_obj_add_style(btn_reset, &btn_style, 0);
     lv_obj_add_event_cb(btn_reset, reset_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_reset = lv_label_create(btn_reset);
     lv_label_set_text(label_reset, "Stop");
+    lv_obj_add_style(label_reset, &font_style, 0);
     lv_obj_center(label_reset);
 
     btn_setting = lv_btn_create(btn_row);
-    lv_obj_set_size(btn_setting, LV_PCT(15), LV_SIZE_CONTENT);
+    lv_obj_set_size(btn_setting, LV_PCT(btn_w), LV_PCT(btn_h));
     lv_obj_add_style(btn_setting, &btn_style, 0);
     lv_obj_add_event_cb(btn_setting, setting_event_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t *label_setting = lv_label_create(btn_setting);
     lv_label_set_text(label_setting, "Settings");
+    lv_obj_add_style(label_setting, &font_style, 0);
     lv_obj_center(label_setting);
 
     /* Cycle status */
@@ -387,7 +420,7 @@ void ui_main_screen(lv_obj_t *parent)
     lv_obj_set_style_text_color(label_quote, lv_color_hex(0x00FF00), 0);
     lv_obj_set_style_text_font(label_quote, &lv_font_montserrat_14, 0);
     lv_label_set_long_mode(label_quote, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_width(label_quote, 300);
+    lv_obj_set_width(label_quote, 200);
     lv_obj_add_flag(label_quote, LV_OBJ_FLAG_CLICKABLE);
 
     // Add event handler to pause/resume

@@ -92,13 +92,15 @@ set SDL2_DIR=vcpkg\installed\x64-windows\share\sdl2
 REM Generate build files
 echo.
 echo [4/5] Generating build files...
+set SCREEN_SIZE_FLAG=OFF
+if "%1"=="screen_240x320" set SCREEN_SIZE_FLAG=ON
 IF NOT EXIST "build" (
     cmake -B build -S . ^
         -DCMAKE_TOOLCHAIN_FILE="%CMAKE_TOOLCHAIN_FILE%" ^
         -DVCPKG_TARGET_TRIPLET=%VCPKG_TARGET_TRIPLET% ^
         -DSDL2_DIR="%SDL2_DIR%" ^
-        -DCMAKE_BUILD_TYPE=Debug
-        
+        -DCMAKE_BUILD_TYPE=Debug ^
+        -DSCREEN_SIZE_240x320=%SCREEN_SIZE_FLAG%
     IF !ERRORLEVEL! NEQ 0 (
         echo Error: CMake configuration failed
         echo Make sure CMakeLists.txt exists and is properly configured
