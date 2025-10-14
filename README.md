@@ -1,5 +1,5 @@
 ## MicroPomo - Embedded Pomodoro Timer
-A lightweight, cross-platform Pomodoro timer built with LVGL.
+A lightweight, cross-platform Pomodoro timer built with LVGL v9.4.0
 
 ### Setup & Run:
 The build script is design to build and run on window.
@@ -9,9 +9,18 @@ The build script is design to build and run on window.
 ```
 
 ## Design
-The pomodoro app design can be looked at `doc` folder and `readme.md`
+### High Level Design
+![alt text](https://github.com/dchithinh/MicroPomo/blob/main/src/pomodoro/doc/HighLevelDesign.png)
 
-## ScreenShot
+### Pomodoro State Machine
+![alt text](https://github.com/dchithinh/MicroPomo/blob/main/src/pomodoro/doc/PomoAppStateMachine.png)
+
+### Timer State Machine
+![alt text](https://github.com/dchithinh/MicroPomo/blob/main/src/pomodoro/doc/TimerStateMachine.png)
+
+The draw.io file design is provided in `doc` and also the `readme.md`
+
+## Screenshot
 ![alt text](https://github.com/dchithinh/MicroPomo/blob/main/src/pomodoro/doc/Start.png)
 
 ![alt text](https://github.com/dchithinh/MicroPomo/blob/main/src/pomodoro/doc/Run.png)
@@ -19,4 +28,10 @@ The pomodoro app design can be looked at `doc` folder and `readme.md`
 ![alt text](https://github.com/dchithinh/MicroPomo/blob/main/src/pomodoro/doc/Settings.png)
 
 ## Porting
-Tobe updated
+- Use can use this build design to run/debug on your PC. Then can intergate the `pomodoro` folder standablone into your HW **OR**
+- Take the whole code and add your HW driver into `hal`
+
+As an example, I have taken `pomodoro` folder into my STM32F407 board. You can have a look at: To be updated
+
+## Acknowledgment
+- lv_port_pc_vscode: https://github.com/lvgl/lv_port_pc_vscode
