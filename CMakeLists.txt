@@ -29,6 +29,8 @@ add_compile_definitions($<$<BOOL:${LV_USE_LIBPNG}>:LV_USE_LIBPNG=1>)
 add_compile_definitions($<$<BOOL:${LV_USE_LIBJPEG_TURBO}>:LV_USE_LIBJPEG_TURBO=1>)
 add_compile_definitions($<$<BOOL:${LV_USE_FFMPEG}>:LV_USE_FFMPEG=1>)
 
+option(SCREEN_SIZE_240x320 "Enable 240x320 screen size" OFF)
+
 # Add LVGL subdirectory
 add_subdirectory(lvgl)
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS})
@@ -36,7 +38,9 @@ target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS
 # Add pomodoro subdirectory with correct path
 # set(POMODORO_ROOT_DIR "${PROJECT_SOURCE_DIR}/src" CACHE PATH "Root directory for pomodoro library")
 add_subdirectory(src/pomodoro)
-
+if(SCREEN_SIZE_240x320)
+    target_compile_definitions(pomodoro_app PRIVATE SCREEN_SIZE_240x320)
+endif()
 set(MAIN_SOURCES src/mouse_cursor_icon.c src/hal/hal.c)
 set(MAIN_LIBS lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES} pomodoro_app)
 
@@ -85,7 +89,11 @@ if(LV_USE_FREETYPE)
 endif()
 
 add_executable(main ${MAIN_SOURCES})
-target_compile_definitions(main PRIVATE LV_CONF_INCLUDE_SIMPLE)
+if(SCREEN_SIZE_240x320)
+    target_compile_definitions(main PRIVATE SCREEN_SIZE_240x320)
+endif()
+
+target_compile_definitions(main PRIVATE LV_CONF_INCLUDE_SIMPLE SCREEN_SIZE_480x480)
 target_link_libraries(main ${MAIN_LIBS})
 
 # On Windows, GUI applications do not show a console by default,

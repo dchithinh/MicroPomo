@@ -22,6 +22,8 @@ static lv_obj_t *settings_screen;
 static lv_style_t setting_section_label_style;
 static lv_style_t setting_label_style;
 static lv_style_t setting_section_style;
+static lv_style_t setting_cont_style;
+static lv_style_t btn_style;
 
 static void ui_setting_screen_set_bg_by_theme(lv_obj_t *parent);
 static void ui_setting_screen_init(void);
@@ -31,18 +33,34 @@ static void ui_setting_screen_init()
     lv_style_init(&setting_section_label_style);
     lv_style_set_text_font(&setting_section_label_style, &lv_font_montserrat_22);
     lv_style_set_text_color(&setting_section_label_style, lv_color_hex(0x4169E1));
-   
+    lv_style_init(&btn_style);
+
     lv_style_init(&setting_section_style);
     lv_style_set_size(&setting_section_style, LV_PCT(100), LV_SIZE_CONTENT);
     lv_style_set_bg_color(&setting_section_style, lv_color_hex(0xD3D3D3));
     lv_style_set_border_width(&setting_section_style, 0);
     lv_style_set_radius(&setting_section_style, 0);
     lv_style_set_bg_opa(&setting_section_style, LV_OPA_10);
+    lv_style_set_radius(&setting_section_style, 8);
 
     lv_style_init(&setting_label_style);
     lv_style_set_text_font(&setting_label_style, &lv_font_montserrat_14);
     lv_style_set_text_color(&setting_label_style, lv_color_hex(0xADD8E6));
-    
+
+    lv_style_init(&setting_cont_style);
+    lv_style_set_pad_all(&setting_cont_style, 0);
+    lv_style_set_size(&setting_cont_style, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_style_set_flex_flow(&setting_cont_style, LV_FLEX_FLOW_COLUMN);
+    lv_style_set_pad_row(&setting_cont_style, 6);
+
+    lv_style_set_bg_color(&btn_style, lv_color_hex(0x2563EB));
+    lv_style_set_bg_grad_color(&btn_style, lv_color_hex(0x1E40AF));
+    lv_style_set_bg_grad_dir(&btn_style, LV_GRAD_DIR_VER);
+    lv_style_set_text_color(&btn_style, lv_color_hex(0xEAEAEA));
+
+    lv_style_set_shadow_width(&btn_style, 8);
+    lv_style_set_shadow_color(&btn_style, lv_color_hex(0x1A1A26));
+    lv_style_set_shadow_ofs_y(&btn_style, 4);
 }
 
 pomodoro_theme_e ui_get_theme(void) {
@@ -157,43 +175,49 @@ void show_settings_screen(lv_obj_t *parent)
 
     lv_obj_t *timer_section = lv_obj_create(settings_screen);
     lv_obj_add_style(timer_section, &setting_section_style, 0);
-    const static int timesection_col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-    const static int timesection_row_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
 
-    lv_obj_set_grid_dsc_array(timer_section, timesection_col_dsc, timesection_row_dsc);
-
-    lv_obj_t *timer_title = lv_label_create(timer_section);
-    lv_obj_set_grid_cell(timer_title, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_END, 0, 1);
-    lv_label_set_text(timer_title, "TIMER");
-    lv_obj_add_style(timer_title, &setting_section_label_style, 0);
-
-    lv_obj_t *work_label = lv_label_create(timer_section);
-    lv_obj_set_grid_cell(work_label, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+    lv_obj_t *work_min_cont = lv_obj_create(timer_section);
+    lv_obj_remove_style_all(work_min_cont);
+    lv_obj_t *work_label = lv_label_create(work_min_cont);
     lv_label_set_text(work_label, "Pomodoro");
     lv_obj_add_style(work_label, &setting_label_style, 0);
-    rollers.work_roller = setting_screen_create_roller(timer_section, 1, 25, settings.work_min, "min");
-    lv_obj_set_grid_cell(rollers.work_roller, LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_START, 2, 1);
+    rollers.work_roller = setting_screen_create_roller(work_min_cont, 1, 25, settings.work_min, "min");
+    lv_obj_set_flex_flow(work_min_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(work_min_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_add_style(work_min_cont, &setting_cont_style, 0);
 
-    lv_obj_t *short_break_label = lv_label_create(timer_section);
-    lv_obj_set_grid_cell(short_break_label, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+    lv_obj_t *short_break_cont = lv_obj_create(timer_section);
+    lv_obj_remove_style_all(short_break_cont);
+    lv_obj_add_style(short_break_cont, &setting_cont_style, 0);
+    lv_obj_t *short_break_label = lv_label_create(short_break_cont);
     lv_label_set_text(short_break_label, "Short Break");
     lv_obj_add_style(short_break_label, &setting_label_style, 0);
-    rollers.short_roller = setting_screen_create_roller(timer_section, 1, 5, settings.short_break_min, "min");
-    lv_obj_set_grid_cell(rollers.short_roller, LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_START, 2, 1);
+    rollers.short_roller = setting_screen_create_roller(short_break_cont, 1, 5, settings.short_break_min, "min");
+    lv_obj_set_flex_flow(short_break_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(short_break_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-    lv_obj_t *long_break_label = lv_label_create(timer_section);
-    lv_obj_set_grid_cell(long_break_label, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+    lv_obj_t *long_break_cont = lv_obj_create(timer_section);
+    lv_obj_remove_style_all(long_break_cont);
+    lv_obj_add_style(long_break_cont, &setting_cont_style, 0);
+    lv_obj_t *long_break_label = lv_label_create(long_break_cont);
     lv_label_set_text(long_break_label, "Long Break");
     lv_obj_add_style(long_break_label, &setting_label_style, 0);
-    rollers.long_roller = setting_screen_create_roller(timer_section, 1, 10, settings.long_break_min, "min");
-    lv_obj_set_grid_cell(rollers.long_roller, LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 2, 1);
+    rollers.long_roller = setting_screen_create_roller(long_break_cont, 1, 10, settings.long_break_min, "min");
+    lv_obj_set_flex_flow(long_break_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(long_break_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     
-    lv_obj_t *cycle_label = lv_label_create(timer_section);
-    lv_obj_set_grid_cell(cycle_label, LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_CENTER, 1, 1);
+    lv_obj_t *cycle_cont = lv_obj_create(timer_section);
+    lv_obj_remove_style_all(cycle_cont);
+    lv_obj_add_style(cycle_cont, &setting_cont_style, 0);
+    lv_obj_t *cycle_label = lv_label_create(cycle_cont);
     lv_label_set_text(cycle_label, "Cycles");
     lv_obj_add_style(cycle_label, &setting_label_style, 0);
-    rollers.cycle_roller = setting_screen_create_roller(timer_section, 1, 4, settings.cycles_before_long, "");
-    lv_obj_set_grid_cell(rollers.cycle_roller, LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_START, 2, 1);
+    rollers.cycle_roller = setting_screen_create_roller(cycle_cont, 1, 4, settings.cycles_before_long, "");
+    lv_obj_set_flex_flow(cycle_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(cycle_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+    lv_obj_set_flex_flow(timer_section, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_flex_align(timer_section, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
     // Attach the same handler to all rollers, passing the struct as user data
     lv_obj_add_event_cb(rollers.work_roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, &rollers);
@@ -206,6 +230,7 @@ void show_settings_screen(lv_obj_t *parent)
     lv_obj_t* label_save = lv_label_create(btn_save);
     lv_label_set_text(label_save, "Save");
     lv_obj_align(btn_save, LV_ALIGN_BOTTOM_MID, 0, -20);
+    lv_obj_add_style(btn_save, &btn_style, 0);
     lv_obj_add_event_cb(btn_save, setting_event_handler, LV_EVENT_CLICKED, NULL);
 }
 
