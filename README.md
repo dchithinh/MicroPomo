@@ -31,7 +31,7 @@ The draw.io file design is provided in `doc` and also the `readme.md`
 - Use can use this build design to run/debug on your PC. Then can intergate the `pomodoro` folder standablone into your HW **OR**
 - Take the whole code and add your HW driver into `hal`
 
-As an example, I have taken `pomodoro` folder into my STM32F407 board. You can have a look at [pomodoro stm32f407xx lcd 2.4 inch](https://github.com/dchithinh/stm32f407xx-ili9341_lcd_2.4Inch/tree/pomodoro_app)
+As an example, I have taken `pomodoro` folder into my STM32F407 board. You can have a look at [stm32f407xx_pomodoro](https://github.com/dchithinh/stm32f407xx_pomodoro/tree/master)
 
 ## Acknowledgment
 - lv_port_pc_vscode: https://github.com/lvgl/lv_port_pc_vscode
